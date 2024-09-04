@@ -7,7 +7,7 @@ The contributor's of this project is a small but professionally trained group of
 
 [Yash](https://github.com/ButtermyStutter)- Designer
 
-[Marcy](https://github.com/cloudedclover) - Artist
+[Valentina](https://www.artstation.com/valsequeira) - Artist
 
 [Justin](https://github.com/JGreenBusiness) - Programmer
 
