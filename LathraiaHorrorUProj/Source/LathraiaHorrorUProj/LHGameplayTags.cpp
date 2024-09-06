@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "LHGameplayTags.h"
 #include "GameplayTagsManager.h"
 #include "Engine/EngineTypes.h"
@@ -18,11 +15,11 @@ void FLHGameplayTags::InitializeNativeTags()
 
 void FLHGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 {
-	AddTag(InputTag_Move, "Input.Move", "Move input");
-	AddTag(InputTag_Look_Mouse,"Input.Look.Mouse","Look (Mouse) input");
-	AddTag(InputTag_Look_Stick,"Input.Look.Stick","Look (Stick) input");
-	AddTag(InputTag_Jump,"Input.Jump","Jump input");
-	AddTag(InputTag_Interact,"Input.Interact","Interact input");
+	AddTag(InputTag_Move, "InputTag.Move", "Move input.");
+	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "Look (mouse) input.");
+	AddTag(InputTag_Look_Stick, "InputTag.Look.Stick", "Look (stick) input.");
+	AddTag(InputTag_Jump, "InputTag.Jump", "Jump input");
+	AddTag(InputTag_Interact, "InputTag.Interact", "Interact input.");
 }
 
 void FLHGameplayTags::AddTag(FGameplayTag& OutTag, const ANSICHAR* TagName, const ANSICHAR* TagComment)
