@@ -6,25 +6,20 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
-#include "LHEnhancedInputComponent.h"
 #include "LHGameplayTags.h"
+#include <EnhancedInputComponent.h>
 
-// Sets default values
 ALHCharacter::ALHCharacter()
 {
-	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
-	// set our turn rates for input
 	TurnRateGamepad = 45.f;
 
-	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
@@ -36,35 +31,30 @@ ALHCharacter::ALHCharacter()
 
 void ALHCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	ULHEnhancedInputComponent* LHEnhancedInputComponent = Cast<ULHEnhancedInputComponent>(PlayerInputComponent);
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
-	//Make sure to set your input component class in the InputSettings->DefaultClasses
-	check(LHEnhancedInputComponent);
-
-	const FLHGameplayTags& GameplayTags = FLHGameplayTags::Get();
-
-	//Bind Input actions by tag
-	LHEnhancedInputComponent->BindActionByTag(InputConfig, GameplayTags.InputTag_Move		, ETriggerEvent::Triggered, this, &ALHCharacter::Input_Move);
-	LHEnhancedInputComponent->BindActionByTag(InputConfig, GameplayTags.InputTag_Look_Mouse	, ETriggerEvent::Triggered, this, &ALHCharacter::Input_Look);
-	LHEnhancedInputComponent->BindActionByTag(InputConfig, GameplayTags.InputTag_Look_Stick	, ETriggerEvent::Triggered, this, &ALHCharacter::Input_Look);
-	LHEnhancedInputComponent->BindActionByTag(InputConfig, GameplayTags.InputTag_Interact	, ETriggerEvent::Triggered, this, &ALHCharacter::Input_Interact);
-	LHEnhancedInputComponent->BindActionByTag(InputConfig, GameplayTags.InputTag_Jump		, ETriggerEvent::Triggered, this, &ALHCharacter::Input_Jump);
-
+	if (IsValid(Input))
+	{
+		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
+		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
+		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Move);
+		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Jump);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Crouch);
+		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Interact);
+	}
 }
 
 void ALHCharacter::OnPrimaryAction()
 {
-	// Trigger the OnItemUsed Event
 	OnInteract.Broadcast();
 }
 
-void ALHCharacter::Input_Move(const FInputActionValue& InputActionValue)
+void ALHCharacter::Move(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -85,7 +75,7 @@ void ALHCharacter::Input_Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Input_Look(const FInputActionValue& InputActionValue)
+void ALHCharacter::Look(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -103,12 +93,18 @@ void ALHCharacter::Input_Look(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Input_Jump(const FInputActionValue& InputActionValue)
+void ALHCharacter::Jump()
 {
-	Jump();
+	Super::Jump();
+
+
 }
 
-void ALHCharacter::Input_Interact(const FInputActionValue& InputActionValue)
+void ALHCharacter::Crouch(const FInputActionValue& InputActionValue)
+{
+}
+
+void ALHCharacter::Interact(const FInputActionValue& InputActionValue)
 {
 	OnPrimaryAction();
 }
@@ -116,13 +112,11 @@ void ALHCharacter::Input_Interact(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
 void ALHCharacter::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
