@@ -39,13 +39,13 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	if (IsValid(Input))
 	{
-		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Move);
-		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Jump);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Crouch);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::UnCrouch);
-		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Interact);
+		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputMove);
+		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputJump);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputCrouch);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputUnCrouch);
+		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 	}
 }
 
@@ -54,7 +54,7 @@ void ALHCharacter::OnPrimaryAction()
 	OnInteract.Broadcast();
 }
 
-void ALHCharacter::Move(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -75,7 +75,7 @@ void ALHCharacter::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Look(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputLook(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -93,22 +93,22 @@ void ALHCharacter::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Jump(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputJump(const FInputActionValue& InputActionValue)
 {
 	Super::Jump();
 }
 
-void ALHCharacter::Crouch(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputCrouch(const FInputActionValue& InputActionValue)
 {
 	Super::Crouch();
 }
 
-void ALHCharacter::UnCrouch(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputUnCrouch(const FInputActionValue& InputActionValue)
 {
 	Super::UnCrouch();
 }
 
-void ALHCharacter::Interact(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 {
 	OnPrimaryAction();
 }
