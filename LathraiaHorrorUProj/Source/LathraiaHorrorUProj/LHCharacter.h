@@ -85,9 +85,10 @@ public:
 
 	void Look(const FInputActionValue& InputActionValue);
 
-	virtual void Jump() override;
+	void Jump(const FInputActionValue& InputActionValue);
 
 	void Crouch(const FInputActionValue& InputActionValue);
+	void UnCrouch(const FInputActionValue& InputActionValue);
 
 	void Interact(const FInputActionValue& InputActionValue);
 
