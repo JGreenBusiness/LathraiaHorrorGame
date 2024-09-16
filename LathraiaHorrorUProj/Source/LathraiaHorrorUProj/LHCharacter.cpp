@@ -6,7 +6,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
-#include "LHGameplayTags.h"
 #include <EnhancedInputComponent.h>
 
 ALHCharacter::ALHCharacter()
