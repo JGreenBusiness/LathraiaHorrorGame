@@ -39,13 +39,13 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	if (IsValid(Input))
 	{
-		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Move);
-		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Jump);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Crouch);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::UnCrouch);
-		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Interact);
+		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputMove);
+		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputJump);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputCrouch);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputUnCrouch);
+		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 	}
 }
 
