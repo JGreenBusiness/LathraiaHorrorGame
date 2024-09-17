@@ -68,6 +68,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
 	UInputAction* MoveInputAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UInputAction*SprintInputAction;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
@@ -82,6 +85,8 @@ public:
 	UInputAction* InteractInputAction;
 	
 	void InputMove(const FInputActionValue& InputActionValue);
+
+	void InputSprint(const FInputActionValue& InputActionValue);
 
 	void InputLook(const FInputActionValue& InputActionValue);
 
