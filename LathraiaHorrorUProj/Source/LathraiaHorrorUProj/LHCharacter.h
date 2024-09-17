@@ -42,6 +42,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FOnInteract OnInteract;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement")
+	float SprintSpeed = 600.0;
+
+private:
+	float DefaultMaxWalkSpeed;
+
 protected:
 
 	void OnPrimaryAction();
@@ -52,6 +58,8 @@ protected:
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	UCharacterMovementComponent* CharacterMovementComponent;
 
 public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
@@ -86,7 +94,8 @@ public:
 	
 	void InputMove(const FInputActionValue& InputActionValue);
 
-	void InputSprint(const FInputActionValue& InputActionValue);
+	void InputSprintBegun(const FInputActionValue& InputActionValue);
+	void InputSprintEnded(const FInputActionValue& InputActionValue);
 
 	void InputLook(const FInputActionValue& InputActionValue);
 

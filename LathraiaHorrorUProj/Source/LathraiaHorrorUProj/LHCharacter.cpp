@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
 #include <EnhancedInputComponent.h>
+#include "GameFramework/CharacterMovementComponent.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -26,6 +27,9 @@ ALHCharacter::ALHCharacter()
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+
+	CharacterMovementComponent = GetCharacterMovement();
+	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 }
 
 void ALHCharacter::BeginPlay()
@@ -41,10 +45,16 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	{
 		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
 		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+
 		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputMove);
+		Input->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ALHCharacter::InputSprintBegun);
+		Input->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputSprintEnded);
+
 		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputJump);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputCrouch);
+
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ALHCharacter::InputCrouch);
 		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputUnCrouch);
+
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 	}
 }
@@ -75,9 +85,14 @@ void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::InputSprint(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputSprintBegun(const FInputActionValue& InputActionValue)
 {
+	CharacterMovementComponent->MaxWalkSpeed = SprintSpeed;
+}
 
+void ALHCharacter::InputSprintEnded(const FInputActionValue& InputActionValue)
+{
+	CharacterMovementComponent->MaxWalkSpeed = DefaultMaxWalkSpeed;
 }
 
 void ALHCharacter::InputLook(const FInputActionValue& InputActionValue)
