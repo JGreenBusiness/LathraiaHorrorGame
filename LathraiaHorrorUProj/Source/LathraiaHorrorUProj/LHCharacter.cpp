@@ -54,7 +54,7 @@ void ALHCharacter::OnPrimaryAction()
 	OnInteract.Broadcast();
 }
 
-void ALHCharacter::Move(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -75,7 +75,12 @@ void ALHCharacter::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Look(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputSprint(const FInputActionValue& InputActionValue)
+{
+
+}
+
+void ALHCharacter::InputLook(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -93,22 +98,22 @@ void ALHCharacter::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Jump(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputJump(const FInputActionValue& InputActionValue)
 {
 	Super::Jump();
 }
 
-void ALHCharacter::Crouch(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputCrouch(const FInputActionValue& InputActionValue)
 {
 	Super::Crouch();
 }
 
-void ALHCharacter::UnCrouch(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputUnCrouch(const FInputActionValue& InputActionValue)
 {
 	Super::UnCrouch();
 }
 
-void ALHCharacter::Interact(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 {
 	OnPrimaryAction();
 }
