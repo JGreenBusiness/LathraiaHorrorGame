@@ -12,6 +12,14 @@
 				"Engine",
 				"EnhancedInput"
 			]
+		},
+		{
+			"Name": "LathraiaHorrorUProjEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
