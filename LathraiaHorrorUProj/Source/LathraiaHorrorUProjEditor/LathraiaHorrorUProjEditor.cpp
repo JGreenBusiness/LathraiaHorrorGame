@@ -1,5 +1,7 @@
 #include "LathraiaHorrorUProjEditor.h"
 
+#include "ViewConeVisualizer.h"
+#include "LathraiaHorrorUProj/AI/ViewConeComponent.h"
 #include "Modules/ModuleManager.h"
 #include "Modules/ModuleInterface.h"
 
@@ -11,11 +13,11 @@ void FLathraiaHorrorUProjEditorModule::StartupModule()
 	if (GUnrealEd)
 	{
 		// Make a new instance of the visualizer
-		// TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FComponentVisualizer());
+		TSharedPtr<FComponentVisualizer> Visualizer = MakeShareable(new FViewConeVisualizer());
 
 		// Register it to our specific component class
-		// GUnrealEd->RegisterComponentVisualizer(UActorComponent::StaticClass()->GetFName(), Visualizer);
-		// Visualizer->OnRegister();
+		GUnrealEd->RegisterComponentVisualizer(UViewConeComponent::StaticClass()->GetFName(), Visualizer);
+		Visualizer->OnRegister();
 	}
 }
 
@@ -25,6 +27,6 @@ void FLathraiaHorrorUProjEditorModule::ShutdownModule()
 	if (GUnrealEd)
 	{
 		// Unregister when the module shuts down
-		// GUnrealEd->UnregisterComponentVisualizer(UActorComponent::StaticClass()->GetFName());
+		GUnrealEd->UnregisterComponentVisualizer(UViewConeComponent::StaticClass()->GetFName());
 	}
 }
