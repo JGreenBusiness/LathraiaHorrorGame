@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "EyeStalk.h"
+#include "ViewConeComponent.h"
 #include "LathraiaHorrorUProj/LHCharacter.h"
 
 UBTD_IsPlayerInViewCone::UBTD_IsPlayerInViewCone()
@@ -44,12 +45,12 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 			PlayerCharacter->GetActorLocation(),
 			ECC_Visibility);
 
-		if (!HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->ViewConeRange)
+		if (!HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
 		{
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - EyeStalk->GetActorLocation()).GetSafeNormal();
 			const float Angle = AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
 			
-			if (Angle <= (EyeStalk->ViewConeAngle * 0.5f))
+			if (Angle <= (EyeStalk->GetViewConeComponent()->Angle * 0.5f))
 			{
 				return true;
 			}

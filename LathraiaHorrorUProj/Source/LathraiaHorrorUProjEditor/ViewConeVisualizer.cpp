@@ -3,7 +3,6 @@
 
 #include "ViewConeVisualizer.h"
 
-#include "LathraiaHorrorUProj/AI/EyeStalk.h"
 #include "LathraiaHorrorUProj/AI/ViewConeComponent.h"
 
 void FViewConeVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View,
@@ -14,12 +13,6 @@ void FViewConeVisualizer::DrawVisualization(const UActorComponent* Component, co
 	{
 		return;
 	}
-
-	const AEyeStalk* EyeStalk = Cast<AEyeStalk>(ViewCone->GetOwner());
-	if (!EyeStalk)
-	{
-		return;
-	}
 	
 	TArray<FVector> Verts;
 	
@@ -27,8 +20,8 @@ void FViewConeVisualizer::DrawVisualization(const UActorComponent* Component, co
 		PDI,
 		Verts,
 		ViewCone->GetComponentTransform(),
-		EyeStalk->ViewConeRange,
-		EyeStalk->ViewConeAngle,
+		ViewCone->Length,
+		ViewCone->Angle,
 		12,
 		FLinearColor(1, 0, 0, 0.5f),
 		SDPG_World,

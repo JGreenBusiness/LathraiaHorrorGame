@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "EyeStalk.generated.h"
 
+class UViewConeComponent;
 class UBehaviorTree;
 
 UCLASS()
@@ -20,11 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk") // Angle in degrees
-	float ViewConeAngle = 30;
-
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk") // Range in cm
-	float ViewConeRange = 1000;
+	UViewConeComponent* GetViewConeComponent() const { return ViewCone; }
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
@@ -32,4 +29,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* RootMesh = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+	UViewConeComponent* ViewCone = nullptr;
 };

@@ -4,6 +4,7 @@
 #include "EyeStalk.h"
 
 #include "AIController.h"
+#include "ViewConeComponent.h"
 
 AEyeStalk::AEyeStalk()
 {
@@ -12,6 +13,9 @@ AEyeStalk::AEyeStalk()
 	
 	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
 	SetRootComponent(RootMesh);
+
+	ViewCone = CreateDefaultSubobject<UViewConeComponent>("View Cone");
+	ViewCone->SetupAttachment(RootMesh);
 }
 
 void AEyeStalk::BeginPlay()
