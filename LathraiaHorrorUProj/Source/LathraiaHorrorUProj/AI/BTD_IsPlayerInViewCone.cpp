@@ -7,6 +7,7 @@
 #include "EyeStalk.h"
 #include "ViewConeComponent.h"
 #include "LathraiaHorrorUProj/LHCharacter.h"
+#include "LathraiaHorrorUProj/MathHelpers.h"
 
 UBTD_IsPlayerInViewCone::UBTD_IsPlayerInViewCone()
 {
@@ -43,14 +44,14 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 			HitResult,
 			EyeStalk->GetActorLocation(),
 			PlayerCharacter->GetActorLocation(),
-			ECC_Visibility);
+			ECC_Pawn);
 
-		if (!HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
+		if (HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
 		{
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - EyeStalk->GetActorLocation()).GetSafeNormal();
-			const float Angle = AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
+			const float Angle = MathHelpers::AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
 			
-			if (Angle <= (EyeStalk->GetViewConeComponent()->Angle * 0.5f))
+			if (Angle <= (EyeStalk->GetViewConeComponent()->HalfAngle))
 			{
 				return true;
 			}
@@ -58,11 +59,4 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 	}
 
 	return false;
-}
-
-float UBTD_IsPlayerInViewCone::AngleBetweenVectors(const FVector& A, const FVector& B) const
-{
-	const float Dot = FVector::DotProduct(A.GetSafeNormal(), B.GetSafeNormal());
-	const float Radians = FMath::Acos(Dot);
-	return FMath::RadiansToDegrees(Radians);
 }

@@ -15,8 +15,8 @@ class LATHRAIAHORRORUPROJ_API UViewConeComponent : public USceneComponent
 public:
 	UViewConeComponent();
 
-	UPROPERTY(EditAnywhere, Category = "View Cone", meta=(ClampMin=0, ClampMax=180)) // In degrees
-	float Angle = 30.f;
+	UPROPERTY(EditAnywhere, Category = "View Cone", meta=(ClampMin=0, ClampMax=90)) // In degrees
+	float HalfAngle = 30.f;
 	
 	UPROPERTY(EditAnywhere, Category = "View Cone", meta=(ClampMin=1)) // In cm
 	float Length = 1000.f;

@@ -19,8 +19,5 @@ class LATHRAIAHORRORUPROJ_API UBTD_IsPlayerInViewCone : public UBTDecorator
 
 protected:
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
-
-	// In Degrees
-	float AngleBetweenVectors(const FVector& A, const FVector& B) const;
 	
 };

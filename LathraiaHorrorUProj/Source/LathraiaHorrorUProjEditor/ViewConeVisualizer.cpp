@@ -21,7 +21,7 @@ void FViewConeVisualizer::DrawVisualization(const UActorComponent* Component, co
 		Verts,
 		ViewCone->GetComponentTransform(),
 		ViewCone->Length,
-		ViewCone->Angle,
+		ViewCone->HalfAngle * 2.f,
 		12,
 		FLinearColor(1, 0, 0, 0.5f),
 		SDPG_World,
