@@ -8,6 +8,7 @@
 #include "EnhancedInput/Public/InputAction.h"
 #include <EnhancedInputComponent.h>
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Lantern.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -58,12 +59,39 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputUnCrouch);
 
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
+
+		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
+
+		Input->BindAction(SecondaryInputAction, ETriggerEvent::Ongoing, this, &ALHCharacter::InputSecondaryAction);
+		//Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
+
+		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
 	}
 }
 
-void ALHCharacter::OnPrimaryAction()
+void ALHCharacter::OnInteractAction()
 {
 	OnInteract.Broadcast();
+}
+
+void ALHCharacter::ToggleHeldLantern()
+{
+	if (Lantern)
+	{
+		Lantern->ToggleLanternHeldState();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LHCharacter: Lantern not Set"))
+	}
+}
+
+void ALHCharacter::PlaceLanternDown()
+{
+	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELST_RekindleReady)
+	{
+		Lantern->SetLanternState(ELanternState::ELST_RekindleReady);
+	}
 }
 
 void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
@@ -132,7 +160,21 @@ void ALHCharacter::InputUnCrouch(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 {
-	OnPrimaryAction();
+	OnInteractAction();
+}
+
+void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
+{
+	ToggleHeldLantern();
+}
+
+void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
+{
+	PlaceLanternDown();
+}
+
+void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
+{
 }
 
 

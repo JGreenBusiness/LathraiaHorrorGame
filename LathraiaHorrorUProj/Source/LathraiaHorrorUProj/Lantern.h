@@ -7,13 +7,14 @@
 #include "Lantern.generated.h"
 
 class USkeletalMeshSocket;
+class ALHCharacter;
 
 UENUM()
-enum class ELanternSocketType : uint8
+enum class ELanternState : uint8
 {
 	ELST_Held,
 	ELST_Stowed,
-	ELST_Rekindle
+	ELST_RekindleReady
 };
 
 UCLASS()
@@ -22,19 +23,18 @@ class LATHRAIAHORRORUPROJ_API ALantern : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ALantern();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
 	bool bSpawnOnPlayer = true;
 
+	// Socket Logic
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	ELanternSocketType DefaultLanternSocket = ELanternSocketType::ELST_Held;
+	ELanternState DefaultLanternSocket = ELanternState::ELST_Held;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	FName HeldLanternSocketName;
@@ -45,13 +45,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	FName RekindleLanternSocketName;
 
-private:
-	TMap<ELanternSocketType, const USkeletalMeshSocket*> LanternSockets;
+protected:
+	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
 
+	ALHCharacter* Player;
+
+	ELanternState ActiveLanternState;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetLanternState(ELanternState NewLanternState);
+
+	ELanternState GetActiveSocketState() { return ActiveLanternState; }
+
+	void ToggleLanternHeldState();
 
 };

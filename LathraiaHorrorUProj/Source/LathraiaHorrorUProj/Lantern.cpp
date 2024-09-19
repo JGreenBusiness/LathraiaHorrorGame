@@ -3,44 +3,75 @@
 
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
+#include "LHCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 
-// Sets default values
 ALantern::ALantern()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACharacter* player = UGameplayStatics::GetPlayerCharacter(this, 0);
-	USkeletalMeshComponent* playerMesh = player->GetMesh();
+	Player = Cast<ALHCharacter>( UGameplayStatics::GetPlayerCharacter(this, 0));
+	USkeletalMeshComponent* playerMeshComponent = Player->GetMesh();
 
-	LanternSockets.Add(ELanternSocketType::ELST_Held, playerMesh->GetSocketByName(HeldLanternSocketName));
-	LanternSockets.Add(ELanternSocketType::ELST_Stowed, playerMesh->GetSocketByName(StowedLanternSocketName));
-	LanternSockets.Add(ELanternSocketType::ELST_Rekindle, playerMesh->GetSocketByName(RekindleLanternSocketName));
-
+	LanternSockets.Add(ELanternState::ELST_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
+	LanternSockets.Add(ELanternState::ELST_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
+	LanternSockets.Add(ELanternState::ELST_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
 
 	if (bSpawnOnPlayer)
 	{
-		if (const USkeletalMeshSocket* defaultSocket = *LanternSockets.Find(DefaultLanternSocket))
-		{
-			AttachToComponent(playerMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, defaultSocket->SocketName);
-		}
+		SetLanternState(DefaultLanternSocket);
 	}
 }
 
 
-// Called every frame
 void ALantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ALantern::SetLanternState(ELanternState NewLanternState)
+{
+	if (!Player->HasLantern())
+	{
+		Player->SetLantern(this);
+	}
+
+	// Switches lantern state and attatches to mesh component if appropriate lantern socket is found 
+	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
+	{
+		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
+		{
+			ActiveLanternState = NewLanternState;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lantern.cpp: Could Not Attatch Lantern to Lantern Socket"));
+	}
+}
+
+void ALantern::ToggleLanternHeldState()
+{
+	switch (ActiveLanternState)
+	{
+	case ELanternState::ELST_Held:
+		SetLanternState(ELanternState::ELST_Stowed);
+		break;
+	case ELanternState::ELST_Stowed:
+		SetLanternState(ELanternState::ELST_Held);
+		break;
+	case ELanternState::ELST_RekindleReady:
+		SetLanternState(ELanternState::ELST_Held);
+		break;
+	default:
+		break;
+	}
 }
 
