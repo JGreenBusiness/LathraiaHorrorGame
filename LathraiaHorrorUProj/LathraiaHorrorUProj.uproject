@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"EnhancedInput"
+				"EnhancedInput",
+				"AIModule"
 			]
 		},
 		{
@@ -37,6 +38,10 @@
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
+		},
+		{
+			"Name": "StudioTelemetry",
+			"Enabled": false
 		}
 	]
 }
