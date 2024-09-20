@@ -40,13 +40,18 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 	if (PlayerCharacter && EyeStalk)
 	{
 		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(PlayerCharacter);
+		Params.AddIgnoredActor(EyeStalk);
+		
 		GetWorld()->LineTraceSingleByChannel(
 			HitResult,
 			EyeStalk->GetActorLocation(),
 			PlayerCharacter->GetActorLocation(),
-			ECC_Pawn);
-
-		if (HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
+			ECC_Visibility,
+			Params);
+		
+		if (!HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
 		{
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - EyeStalk->GetActorLocation()).GetSafeNormal();
 			const float Angle = MathHelpers::AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
