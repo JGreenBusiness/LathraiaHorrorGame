@@ -19,6 +19,7 @@ enum class ELanternState : uint8
 	ELS_InUse
 };
 
+
 UCLASS()
 class LATHRAIAHORRORUPROJ_API ALantern : public AActor
 {
@@ -30,9 +31,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void ChangeState(ELanternState NewLanternState);
+private:
+	float MaxLanternIntensity = 0;
+
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
 	bool bSpawnOnPlayer = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float HeldLightModifier = .5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float StowedLightModifier = .1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float InUseLightModifier = 1.0f;
+
 
 	// Socket Logic
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")

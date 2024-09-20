@@ -18,7 +18,7 @@ ALantern::ALantern()
 
 	PointLightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("LanternPointLight"));
 	PointLightComponent->SetupAttachment(LanternMeshComponent);
-
+	MaxLanternIntensity = PointLightComponent->Intensity;
 }
 
 void ALantern::BeginPlay()
@@ -28,15 +28,39 @@ void ALantern::BeginPlay()
 	Player = Cast<ALHCharacter>( UGameplayStatics::GetPlayerCharacter(this, 0));
 	USkeletalMeshComponent* playerMeshComponent = Player->GetMesh();
 
-	LanternSockets.Add(ELanternState::ELST_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
-	LanternSockets.Add(ELanternState::ELST_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
-	LanternSockets.Add(ELanternState::ELST_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
-	LanternSockets.Add(ELanternState::ELST_InUse, playerMeshComponent->GetSocketByName(InUseLanternSocketName));
+	LanternSockets.Add(ELanternState::ELS_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
+	LanternSockets.Add(ELanternState::ELS_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
+	LanternSockets.Add(ELanternState::ELS_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
+	LanternSockets.Add(ELanternState::ELS_InUse, playerMeshComponent->GetSocketByName(InUseLanternSocketName));
 
 	if (bSpawnOnPlayer)
 	{
 		SetLanternState(DefaultLanternSocket);
 	}
+}
+
+void ALantern::ChangeState(ELanternState NewLanternState)
+{
+	CurrentLanternState = NewLanternState;
+	float intensityModifier = 0;
+	switch (CurrentLanternState)
+	{
+	case ELanternState::ELS_Held:
+		intensityModifier = HeldLightModifier;
+		break;
+	case ELanternState::ELS_Stowed:
+		intensityModifier = StowedLightModifier;
+		break;
+	case ELanternState::ELS_RekindleReady:
+		break;
+	case ELanternState::ELS_InUse:
+		intensityModifier = InUseLightModifier;
+		break;
+	default:
+		break;
+	}
+	PointLightComponent->SetIntensity(MaxLanternIntensity * intensityModifier);
+
 }
 
 
@@ -58,7 +82,7 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 	{
 		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
 		{
-			CurrentLanternState = NewLanternState;
+			ChangeState(NewLanternState);
 		}
 	}
 	else
@@ -69,8 +93,8 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 
 void ALantern::ToggleLanternHeldState()
 {
-	CurrentLanternState == ELanternState::ELST_Held?
-		SetLanternState(ELanternState::ELST_Stowed):
-		SetLanternState(ELanternState::ELST_Held);
+	CurrentLanternState == ELanternState::ELS_Held?
+		SetLanternState(ELanternState::ELS_Stowed):
+		SetLanternState(ELanternState::ELS_Held);
 }
 

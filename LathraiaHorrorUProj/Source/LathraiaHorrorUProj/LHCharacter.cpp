@@ -86,9 +86,9 @@ void ALHCharacter::ToggleHeldLantern()
 
 void ALHCharacter::PlaceLanternDown()
 {
-	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELST_RekindleReady)
+	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELS_RekindleReady)
 	{
-		Lantern->SetLanternState(ELanternState::ELST_RekindleReady);
+		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
 	}
 }
 
@@ -168,7 +168,7 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
 {
-	Lantern->SetLanternState(ELanternState::ELST_InUse);
+	Lantern->SetLanternState(ELanternState::ELS_InUse);
 }
 
 void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
