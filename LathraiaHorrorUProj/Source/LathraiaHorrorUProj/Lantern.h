@@ -13,10 +13,10 @@ class UPointLightComponent;
 UENUM()
 enum class ELanternState : uint8
 {
-	ELST_Held,
-	ELST_Stowed,
-	ELST_RekindleReady,
-	ELST_InUse
+	ELS_Held,
+	ELS_Stowed,
+	ELS_RekindleReady,
+	ELS_InUse
 };
 
 UCLASS()
@@ -36,7 +36,7 @@ public:
 
 	// Socket Logic
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	ELanternState DefaultLanternSocket = ELanternState::ELST_Held;
+	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	FName HeldLanternSocketName;
