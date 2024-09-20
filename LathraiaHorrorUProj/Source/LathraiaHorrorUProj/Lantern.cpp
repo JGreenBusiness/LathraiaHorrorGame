@@ -5,10 +5,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "LHCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/PointLightComponent.h"
 
 ALantern::ALantern()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneComponent"));
+
+	LanternMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LanternMesh"));
+	LanternMeshComponent->SetupAttachment(RootComponent);
+
+	PointLightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("LanternPointLight"));
+	PointLightComponent->SetupAttachment(LanternMeshComponent);
 
 }
 

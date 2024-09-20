@@ -8,6 +8,7 @@
 
 class USkeletalMeshSocket;
 class ALHCharacter;
+class UPointLightComponent;
 
 UENUM()
 enum class ELanternState : uint8
@@ -55,6 +56,12 @@ protected:
 	ALHCharacter* Player;
 
 	ELanternState CurrentLanternState;
+
+	UPROPERTY(VisibleAnywhere)
+	UPointLightComponent* PointLightComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* LanternMeshComponent;
 
 public:	
 	// Called every frame
