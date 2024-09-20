@@ -14,7 +14,8 @@ enum class ELanternState : uint8
 {
 	ELST_Held,
 	ELST_Stowed,
-	ELST_RekindleReady
+	ELST_RekindleReady,
+	ELST_InUse
 };
 
 UCLASS()
@@ -40,6 +41,9 @@ public:
 	FName HeldLanternSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
+	FName InUseLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	FName StowedLanternSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
@@ -50,7 +54,7 @@ protected:
 
 	ALHCharacter* Player;
 
-	ELanternState ActiveLanternState;
+	ELanternState CurrentLanternState;
 
 public:	
 	// Called every frame
@@ -58,7 +62,7 @@ public:
 
 	void SetLanternState(ELanternState NewLanternState);
 
-	ELanternState GetActiveSocketState() { return ActiveLanternState; }
+	ELanternState GetActiveSocketState() { return CurrentLanternState; }
 
 	void ToggleLanternHeldState();
 

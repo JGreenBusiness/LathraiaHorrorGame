@@ -22,6 +22,7 @@ void ALantern::BeginPlay()
 	LanternSockets.Add(ELanternState::ELST_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
 	LanternSockets.Add(ELanternState::ELST_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
 	LanternSockets.Add(ELanternState::ELST_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
+	LanternSockets.Add(ELanternState::ELST_InUse, playerMeshComponent->GetSocketByName(InUseLanternSocketName));
 
 	if (bSpawnOnPlayer)
 	{
@@ -48,7 +49,7 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 	{
 		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
 		{
-			ActiveLanternState = NewLanternState;
+			CurrentLanternState = NewLanternState;
 		}
 	}
 	else
@@ -59,19 +60,8 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 
 void ALantern::ToggleLanternHeldState()
 {
-	switch (ActiveLanternState)
-	{
-	case ELanternState::ELST_Held:
-		SetLanternState(ELanternState::ELST_Stowed);
-		break;
-	case ELanternState::ELST_Stowed:
+	CurrentLanternState == ELanternState::ELST_Held?
+		SetLanternState(ELanternState::ELST_Stowed):
 		SetLanternState(ELanternState::ELST_Held);
-		break;
-	case ELanternState::ELST_RekindleReady:
-		SetLanternState(ELanternState::ELST_Held);
-		break;
-	default:
-		break;
-	}
 }
 

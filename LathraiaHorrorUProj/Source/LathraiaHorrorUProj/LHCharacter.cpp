@@ -62,10 +62,10 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Ongoing, this, &ALHCharacter::InputSecondaryAction);
-		//Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
+		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
+		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
 
-		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
+		Input->BindAction(TertiaryInputAction, ETriggerEvent::Started, this, &ALHCharacter::InputTertieryAction);
 	}
 }
 
@@ -82,7 +82,7 @@ void ALHCharacter::ToggleHeldLantern()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LHCharacter: Lantern not Set"))
+		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
 	}
 }
 
@@ -170,11 +170,13 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
 {
-	PlaceLanternDown();
+	Lantern->SetLanternState(ELanternState::ELST_InUse);
 }
 
 void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
 {
+	UE_LOG(LogTemp, Warning, TEXT("LHCharcter.cpp : Tertiary value %f"),InputActionValue.Get<float>());
+	PlaceLanternDown();
 }
 
 
