@@ -3,7 +3,7 @@
 
 #include "BTD_IsPlayerInViewCone.h"
 
-#include "AIController.h"
+#include "EnemyHelpers.h"
 #include "EyeStalk.h"
 #include "ViewConeComponent.h"
 #include "LathraiaHorrorUProj/LHCharacter.h"
@@ -24,18 +24,8 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 	// -> Within threshold = return true
 	// -> Not within threshold = return false
 
-	const ALHCharacter* PlayerCharacter = nullptr;
-	const AEyeStalk* EyeStalk = nullptr;
-	
-	if (const APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController()))
-	{
-		PlayerCharacter = Cast<ALHCharacter>(PlayerController->GetPawn());
-	}
-	
-	if (const AAIController* AIController = Cast<AAIController>(OwnerComp.GetOwner()))
-	{
-		EyeStalk = Cast<AEyeStalk>(AIController->GetPawn());
-	}
+	const ALHCharacter* PlayerCharacter = EnemyHelpers::GetPlayerFromWorld(GetWorld());
+	const AEyeStalk* EyeStalk = EnemyHelpers::GetEyeStalkFromBTComp(OwnerComp);
 
 	if (PlayerCharacter && EyeStalk)
 	{

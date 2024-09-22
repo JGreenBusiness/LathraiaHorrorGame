@@ -3,7 +3,7 @@
 
 #include "BTD_CheckAwarenessMeter.h"
 
-#include "AIController.h"
+#include "EnemyHelpers.h"
 #include "EyeStalk.h"
 
 UBTD_CheckAwarenessMeter::UBTD_CheckAwarenessMeter()
@@ -13,15 +13,12 @@ UBTD_CheckAwarenessMeter::UBTD_CheckAwarenessMeter()
 
 bool UBTD_CheckAwarenessMeter::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	if (const AAIController* AIController = Cast<AAIController>(OwnerComp.GetOwner()))
+	if (AEyeStalk* EyeStalk = EnemyHelpers::GetEyeStalkFromBTComp(OwnerComp))
 	{
-		if(AEyeStalk* EyeStalk = Cast<AEyeStalk>(AIController->GetPawn()))
+		if (EyeStalk->GetAwarenessMeterValue() > AwarenessMeterMax)
 		{
-			if (EyeStalk->GetAwarenessMeterValue() > AwarenessMeterMax)
-			{
-				EyeStalk->SetAwarenessMeterValue(AwarenessMeterMax);
-				return true;
-			}
+			EyeStalk->SetAwarenessMeterValue(AwarenessMeterMax);
+			return true;
 		}
 	}
 

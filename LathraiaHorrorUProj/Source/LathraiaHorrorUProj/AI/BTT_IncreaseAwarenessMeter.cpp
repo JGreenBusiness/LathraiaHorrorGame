@@ -3,7 +3,7 @@
 
 #include "BTT_IncreaseAwarenessMeter.h"
 
-#include "AIController.h"
+#include "EnemyHelpers.h"
 #include "EyeStalk.h"
 
 UBTT_IncreaseAwarenessMeter::UBTT_IncreaseAwarenessMeter()
@@ -13,12 +13,9 @@ UBTT_IncreaseAwarenessMeter::UBTT_IncreaseAwarenessMeter()
 
 EBTNodeResult::Type UBTT_IncreaseAwarenessMeter::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	if (const AAIController* AIController = Cast<AAIController>(OwnerComp.GetOwner()))
+	if (AEyeStalk* EyeStalk = EnemyHelpers::GetEyeStalkFromBTComp(OwnerComp))
 	{
-		if (AEyeStalk* EyeStalk = Cast<AEyeStalk>(AIController->GetPawn()))
-		{
-			EyeStalk->IncreaseAwarenessMeter();
-		}
+		EyeStalk->IncreaseAwarenessMeter();
 	}
 	
 	return EBTNodeResult::Succeeded;
