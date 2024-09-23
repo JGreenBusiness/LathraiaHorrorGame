@@ -52,6 +52,7 @@ void ALantern::ChangeState(ELanternState NewLanternState)
 		intensityModifier = StowedLightModifier;
 		break;
 	case ELanternState::ELS_RekindleReady:
+		intensityModifier = StowedLightModifier;
 		break;
 	case ELanternState::ELS_InUse:
 		intensityModifier = InUseLightModifier;
