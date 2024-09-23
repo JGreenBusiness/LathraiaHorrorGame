@@ -13,17 +13,15 @@ void FViewConeVisualizer::DrawVisualization(const UActorComponent* Component, co
 	{
 		return;
 	}
-	
-	TArray<FVector> Verts;
-	
-	DrawWireCone(
+
+	DrawWireSphereCappedCone(
 		PDI,
-		Verts,
 		ViewCone->GetComponentTransform(),
 		ViewCone->Length,
-		ViewCone->HalfAngle * 2.f,
+		ViewCone->HalfAngle,
+		12,
+		1,
 		12,
 		FLinearColor(1, 0, 0, 0.5f),
-		SDPG_World,
-		5);
+		SDPG_World);
 }
