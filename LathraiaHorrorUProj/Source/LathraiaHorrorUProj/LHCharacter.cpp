@@ -178,7 +178,6 @@ void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue
 {
 	if (Lantern)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LHCharcter.cpp : Tertiary value %f"), InputActionValue.Get<float>());
 		PlaceLanternDown();
 	}
 }

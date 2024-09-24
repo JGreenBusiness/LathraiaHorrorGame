@@ -6,6 +6,7 @@
 #include "LHCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/PointLightComponent.h"
+#include "Math/UnrealMathUtility.h"
 
 ALantern::ALantern()
 {
@@ -18,7 +19,8 @@ ALantern::ALantern()
 
 	PointLightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("LanternPointLight"));
 	PointLightComponent->SetupAttachment(LanternMeshComponent);
-	MaxLanternIntensity = PointLightComponent->Intensity;
+	CurrentFlameIntensity = PointLightComponent->Intensity;
+	MaxLanternIntensity = CurrentFlameIntensity;
 }
 
 void ALantern::BeginPlay()
@@ -39,35 +41,57 @@ void ALantern::BeginPlay()
 	}
 }
 
-void ALantern::ChangeState(ELanternState NewLanternState)
+void ALantern::ChangeLanternState(ELanternState NewLanternState)
 {
 	CurrentLanternState = NewLanternState;
-	float intensityModifier = 0;
+	FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
 	switch (CurrentLanternState)
 	{
 	case ELanternState::ELS_Held:
-		intensityModifier = HeldLightModifier;
+		BurnRate = HeldBurnRate;
 		break;
 	case ELanternState::ELS_Stowed:
-		intensityModifier = StowedLightModifier;
+		BurnRate = StowedBurnRate;
 		break;
 	case ELanternState::ELS_RekindleReady:
-		intensityModifier = StowedLightModifier;
+		BurnRate = RekindlingBurnRate;
+		FireIntensityTeirDestination = EFireIntensityTeir::EFT_TeirFive;
 		break;
 	case ELanternState::ELS_InUse:
-		intensityModifier = InUseLightModifier;
+		BurnRate = InUseBurnRate;
 		break;
 	default:
 		break;
 	}
-	PointLightComponent->SetIntensity(MaxLanternIntensity * intensityModifier);
+}
 
+float ALantern::LerpFlameIntensity(float DeltaTime)
+{
+	float lightIntesnsityDestination = MaxLanternIntensity * GetFireIntensityTeirRatio(FireIntensityTeirDestination);
+	CurrentFlameIntensity = FMath::Lerp(CurrentFlameIntensity, lightIntesnsityDestination, BurnRate);
+
+	if (CurrentLanternState != ELanternState::ELS_Stowed)
+	{
+		return CurrentFlameIntensity;
+	}
+	else
+	{
+		return CurrentFlameIntensity * StowedDimedRatio;
+	}
 }
 
 
 void ALantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float newLightIntensity = LerpFlameIntensity(DeltaTime);
+	PointLightComponent->SetIntensity(newLightIntensity);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Flame = %f%%"), (newLightIntensity / MaxLanternIntensity)*100));
+	}
 
 }
 
@@ -83,7 +107,7 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 	{
 		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
 		{
-			ChangeState(NewLanternState);
+			ChangeLanternState(NewLanternState);
 		}
 	}
 	else

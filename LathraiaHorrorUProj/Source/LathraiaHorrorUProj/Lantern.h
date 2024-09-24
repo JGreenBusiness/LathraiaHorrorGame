@@ -20,6 +20,18 @@ enum class ELanternState : uint8
 };
 
 
+UENUM()
+enum class EFireIntensityTeir : uint8
+{
+	EFT_Snuffed,
+	EFT_TeirOne,
+	EFT_TeirTwo,
+	EFT_TeirThree,
+	EFT_TeirFour,
+	EFT_TeirFive,
+};
+
+
 UCLASS()
 class LATHRAIAHORRORUPROJ_API ALantern : public AActor
 {
@@ -31,22 +43,29 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void ChangeState(ELanternState NewLanternState);
-private:
-	float MaxLanternIntensity = 0;
+	void ChangeLanternState(ELanternState NewLanternState);
 
+	float GetFireIntensityTeirRatio(EFireIntensityTeir FireIntensityTeir) { return static_cast<float>(static_cast<uint8>(FireIntensityTeir)) / static_cast<float>(static_cast<uint8>(EFireIntensityTeir::EFT_TeirFive));}
+
+	float LerpFlameIntensity(float DeltaTime);
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
 	bool bSpawnOnPlayer = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float HeldLightModifier = .5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float StowedDimedRatio = .3;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float StowedLightModifier = .1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float HeldBurnRate = .1f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Light Modifiers", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float InUseLightModifier = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float StowedBurnRate = .01f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float InUseBurnRate = .5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float RekindlingBurnRate = .5f;
 
 
 	// Socket Logic
@@ -71,12 +90,20 @@ protected:
 	ALHCharacter* Player;
 
 	ELanternState CurrentLanternState;
+	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UPointLightComponent* PointLightComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* LanternMeshComponent;
+
+	float BurnRate = .1f;
+
+	float MaxLanternIntensity = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float CurrentFlameIntensity;
 
 public:	
 	// Called every frame
