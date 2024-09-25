@@ -114,7 +114,7 @@ UBehaviorTree* AEyeStalk::GetCurrentTree(const AAIController* AIController)
 
 void AEyeStalk::Mode_Surveillance(const float DeltaSeconds)
 {
-	SwingEye(10.f * DeltaSeconds, -60.f, 60.f);
+	SwingEye(SwingSpeed_Surveillance * DeltaSeconds, SwingAngleMin_Surveillance, SwingAngleMax_Surveillance);
 }
 
 void AEyeStalk::Mode_SurveillanceEx(const float DeltaSeconds)
@@ -124,7 +124,7 @@ void AEyeStalk::Mode_SurveillanceEx(const float DeltaSeconds)
 
 void AEyeStalk::Mode_Rem(const float DeltaSeconds)
 {
-	SwingEye(20.f * DeltaSeconds, YawToPlayer - 30.f, YawToPlayer + 30.f);
+	SwingEye(SwingSpeed_REM * DeltaSeconds, YawToPlayer + SwingAngleMin_REM, YawToPlayer + SwingAngleMax_REM);
 }
 
 void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle)
@@ -145,4 +145,31 @@ void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const
 	Rotation.Yaw += SwingSpeed * (SwingDirection ? 1.f : -1.f);
 	
 	SetActorRotation(Rotation);
+}
+
+void AEyeStalk::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	const FName PropertyName = PropertyChangedEvent.Property->NamePrivate;
+
+	if (SwingAngleMin_Surveillance > SwingAngleMax_Surveillance && PropertyName == "SwingAngleMax_Surveillance")
+	{
+		SwingAngleMin_Surveillance = SwingAngleMax_Surveillance;
+	}
+
+	if (SwingAngleMax_Surveillance < SwingAngleMin_Surveillance && PropertyName == "SwingAngleMin_Surveillance")
+	{
+		SwingAngleMax_Surveillance = SwingAngleMin_Surveillance;
+	}
+
+	if (SwingAngleMin_REM > SwingAngleMax_REM && PropertyName == "SwingAngleMax_REM")
+	{
+		SwingAngleMin_REM = SwingAngleMax_REM;
+	}
+
+	if (SwingAngleMax_REM < SwingAngleMin_REM && PropertyName == "SwingAngleMin_REM")
+	{
+		SwingAngleMax_REM = SwingAngleMin_REM;
+	}
 }

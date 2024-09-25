@@ -54,6 +54,8 @@ protected:
 	void Mode_Rem(const float DeltaSeconds);
 
 	void SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle);
+	
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
@@ -85,6 +87,28 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Awareness Modifiers", meta=(ClampMin=1))
 	float MovingMultiplier = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Speed", meta=(ClampMin=1))
+	float SwingSpeed_Surveillance = 10.f;
+
+	// Minimum swing angle in degrees
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
+	float SwingAngleMin_Surveillance = -60.f;
+
+	// Maximum swing angle in degrees
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
+	float SwingAngleMax_Surveillance = 60.f;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Speed", meta=(ClampMin=1))
+	float SwingSpeed_REM = 50.f;
+
+	// Minimum swing angle in degrees
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
+	float SwingAngleMin_REM = -30.f;
+
+	// Maximum swing angle in degrees
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
+	float SwingAngleMax_REM = 30.f;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
