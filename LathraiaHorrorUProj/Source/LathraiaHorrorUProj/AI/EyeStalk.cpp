@@ -4,12 +4,15 @@
 #include "EyeStalk.h"
 
 #include "AIController.h"
+#include "EnemyHelpers.h"
 #include "ViewConeComponent.h"
-#include "LathraiaHorrorUProj/LHCharacter.h"
-#include "LathraiaHorrorUProj/MathHelpers.h"
+#include "LHCharacter.h"
+#include "MathHelpers.h"
 
 AEyeStalk::AEyeStalk()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
  	AutoPossessPlayer = EAutoReceiveInput::Disabled;
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
@@ -20,14 +23,30 @@ AEyeStalk::AEyeStalk()
 	ViewCone->SetupAttachment(RootMesh);
 }
 
-void AEyeStalk::BeginPlay()
+void AEyeStalk::Tick(float DeltaSeconds)
 {
-	Super::BeginPlay();
-
-	if (AAIController* AIController = Cast<AAIController>(Controller))
+	Super::Tick(DeltaSeconds);
+	
+	switch (CurrentMode)
 	{
-		AIController->RunBehaviorTree(BehaviorTree);
+		case ESM_Surveillance: Mode_Surveillance(DeltaSeconds); break;
+		case ESM_SurveillanceEx: Mode_SurveillanceEx(DeltaSeconds); break;
+		case ESM_Rem: Mode_Rem(DeltaSeconds); break;
+		default: break;
 	}
+
+	SelectBehaviorTree();
+}
+
+void AEyeStalk::SetEyeStalkMode(const EEyeStalkMode NewMode)
+{
+	if (const ALHCharacter* PlayerCharacter = EnemyHelpers::GetPlayerFromWorld(GetWorld()))
+	{
+		const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+		YawToPlayer = FMath::RadiansToDegrees(ToPlayer.HeadingAngle());
+	}
+		
+	CurrentMode = NewMode;
 }
 
 void AEyeStalk::IncreaseAwarenessMeter()
@@ -59,4 +78,71 @@ void AEyeStalk::IncreaseAwarenessMeter()
 	// Amount += PlayerCharacter->LanternLevel / PlayerCharacter->MaxLanternLevel;
 	
 	AwarenessMeter += Amount;
+}
+
+void AEyeStalk::SelectBehaviorTree()
+{
+	if (AAIController* AIController = Cast<AAIController>(Controller))
+	{
+		const UBehaviorTree* CurrentTree = GetCurrentTree(AIController);
+		
+		if (CurrentPhase == ESP_Aggro && CurrentTree != BehaviorTree_Aggro)
+		{
+			AIController->RunBehaviorTree(BehaviorTree_Aggro);
+		}
+		else if (CurrentPhase == ESP_Hunting && CurrentTree != BehaviorTree_Hunting)
+		{
+			AIController->RunBehaviorTree(BehaviorTree_Hunting);
+		}
+	}
+}
+
+UBehaviorTree* AEyeStalk::GetCurrentTree(const AAIController* AIController)
+{
+	UBehaviorTree* CurrentTree = nullptr;
+	
+	if (IsValid(AIController))
+	{
+		if (const UBehaviorTreeComponent* BehaviorComp = Cast<UBehaviorTreeComponent>(AIController->BrainComponent))
+		{
+			CurrentTree = BehaviorComp->GetCurrentTree();
+		}
+	}
+
+	return CurrentTree;
+}
+
+void AEyeStalk::Mode_Surveillance(const float DeltaSeconds)
+{
+	SwingEye(10.f * DeltaSeconds, -60.f, 60.f);
+}
+
+void AEyeStalk::Mode_SurveillanceEx(const float DeltaSeconds)
+{
+	GEngine->AddOnScreenDebugMessage(0, 3, FColor::Green, "TODO - Implement SurveillanceEx");
+}
+
+void AEyeStalk::Mode_Rem(const float DeltaSeconds)
+{
+	SwingEye(20.f * DeltaSeconds, YawToPlayer - 30.f, YawToPlayer + 30.f);
+}
+
+void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle)
+{
+	// Rotate Yaw between min. and max. angle, flipping direction when outside extents
+	
+	FRotator Rotation = GetActorRotation();
+
+	if (SwingDirection && Rotation.Yaw >= MaximumAngle) // Check for max angle
+	{
+		SwingDirection = false;
+	}
+	else if (!SwingDirection && Rotation.Yaw <= MinimumAngle) // Check for min angle
+	{
+		SwingDirection = true;
+	}
+
+	Rotation.Yaw += SwingSpeed * (SwingDirection ? 1.f : -1.f);
+	
+	SetActorRotation(Rotation);
 }

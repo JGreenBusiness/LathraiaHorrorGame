@@ -6,8 +6,8 @@
 #include "EnemyHelpers.h"
 #include "EyeStalk.h"
 #include "ViewConeComponent.h"
-#include "LathraiaHorrorUProj/LHCharacter.h"
-#include "LathraiaHorrorUProj/MathHelpers.h"
+#include "LHCharacter.h"
+#include "MathHelpers.h"
 
 UBTD_IsPlayerInViewCone::UBTD_IsPlayerInViewCone()
 {
