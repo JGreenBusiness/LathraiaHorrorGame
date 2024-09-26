@@ -36,6 +36,24 @@ ALHCharacter::ALHCharacter()
 void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
+	if (LanternClass)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// Spawn the Blueprint actor
+			FActorSpawnParameters SpawnParams;
+			Lantern = Cast<ALantern>(World->SpawnActor<AActor>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams));
+
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Held, HeldLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_InUse, InUseLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Stowed, StowedLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+		}
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,7 +94,7 @@ void ALHCharacter::ToggleHeldLantern()
 {
 	if (Lantern)
 	{
-		Lantern->ToggleLanternHeldState();
+		Lantern->ToggleLanternHeldState(Mesh1P);
 	}
 	else
 	{
@@ -86,9 +104,9 @@ void ALHCharacter::ToggleHeldLantern()
 
 void ALHCharacter::PlaceLanternDown()
 {
-	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELS_RekindleReady)
+	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
 	{
-		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
+		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_RekindleReady);
 	}
 }
 
@@ -170,7 +188,7 @@ void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValu
 {
 	if (Lantern)
 	{
-		Lantern->SetLanternState(ELanternState::ELS_InUse);
+		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_InUse);
 	}
 }
 

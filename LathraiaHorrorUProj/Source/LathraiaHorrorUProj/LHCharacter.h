@@ -57,7 +57,6 @@ protected:
 protected:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
-
 	ALantern* Lantern = nullptr;
 
 public:
@@ -70,8 +69,24 @@ public:
 	UPROPERTY(Category = "LHCharacter Config: Sprinting", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
 
-	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	// Lantern Related Properties
+
+
+	UPROPERTY(Category = "LHCharacter Config: Lantern", EditDefaultsOnly)
+	TSubclassOf<ALantern> LanternClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName HeldLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName InUseLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName StowedLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName RekindleLanternSocketName;
+
+
 
 	// Enhanced Input 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
@@ -109,8 +124,11 @@ public:
 	UInputAction* TertiaryInputAction;
 
 public:
-	bool HasLantern() { return Lantern != nullptr; }
-	void SetLantern(ALantern* NewLantern) { Lantern = NewLantern; }
+
+
+	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+
+	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	// Enhanced Input
 	void InputMove(const FInputActionValue& InputActionValue);

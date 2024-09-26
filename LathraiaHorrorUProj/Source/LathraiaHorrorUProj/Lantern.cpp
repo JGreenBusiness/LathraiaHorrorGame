@@ -3,7 +3,6 @@
 
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
-#include "LHCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/PointLightComponent.h"
 #include "Math/UnrealMathUtility.h"
@@ -23,22 +22,14 @@ ALantern::ALantern()
 	MaxLanternIntensity = CurrentFlameIntensity;
 }
 
+void ALantern::AddLanternSocket(USkeletalMeshComponent* ActorMeshComponent, ELanternState LanternState, FName LanternSocketName)
+{
+	LanternSockets.Add(LanternState, ActorMeshComponent->GetSocketByName(LanternSocketName));
+}
+
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Player = Cast<ALHCharacter>( UGameplayStatics::GetPlayerCharacter(this, 0));
-	USkeletalMeshComponent* playerMeshComponent = Player->GetMesh();
-
-	LanternSockets.Add(ELanternState::ELS_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_InUse, playerMeshComponent->GetSocketByName(InUseLanternSocketName));
-
-	if (bSpawnOnPlayer)
-	{
-		SetLanternState(DefaultLanternSocket);
-	}
 }
 
 void ALantern::ChangeLanternState(ELanternState NewLanternState)
@@ -95,17 +86,12 @@ void ALantern::Tick(float DeltaTime)
 
 }
 
-void ALantern::SetLanternState(ELanternState NewLanternState)
+void ALantern::SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState)
 {
-	if (!Player->HasLantern())
-	{
-		Player->SetLantern(this);
-	}
-
 	// Switches lantern state and attatches to mesh component if appropriate lantern socket is found 
 	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
 	{
-		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
+		if (AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
 		{
 			ChangeLanternState(NewLanternState);
 		}
@@ -116,10 +102,10 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 	}
 }
 
-void ALantern::ToggleLanternHeldState()
+void ALantern::ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets)
 {
 	CurrentLanternState == ELanternState::ELS_Held?
-		SetLanternState(ELanternState::ELS_Stowed):
-		SetLanternState(ELanternState::ELS_Held);
+		SetLanternState(MeshWithLanternSockets,ELanternState::ELS_Stowed):
+		SetLanternState(MeshWithLanternSockets,ELanternState::ELS_Held);
 }
 

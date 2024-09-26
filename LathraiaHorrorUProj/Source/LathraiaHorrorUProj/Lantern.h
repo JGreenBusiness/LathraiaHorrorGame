@@ -7,7 +7,6 @@
 #include "Lantern.generated.h"
 
 class USkeletalMeshSocket;
-class ALHCharacter;
 class UPointLightComponent;
 
 UENUM()
@@ -49,9 +48,6 @@ protected:
 
 	float LerpFlameIntensity(float DeltaTime);
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
-	bool bSpawnOnPlayer = true;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float StowedDimedRatio = .3;
 
@@ -72,22 +68,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName HeldLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName InUseLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName StowedLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName RekindleLanternSocketName;
-
 protected:
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
-
-	ALHCharacter* Player;
 
 	ELanternState CurrentLanternState;
 	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
@@ -109,10 +91,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetLanternState(ELanternState NewLanternState);
+	void SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState);
 
-	ELanternState GetActiveSocketState() { return CurrentLanternState; }
+	ELanternState GetActiveLanternState() { return CurrentLanternState; }
 
-	void ToggleLanternHeldState();
+	void ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets);
 
+	void AddLanternSocket(USkeletalMeshComponent* ActorMeshComponent, ELanternState LanternState, FName LanternSocketName);
 };
