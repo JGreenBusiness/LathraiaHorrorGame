@@ -2,8 +2,7 @@
 
 #include "ViewConeVisualizer.h"
 #include "LathraiaHorrorUProj/AI/ViewConeComponent.h"
-#include "Modules/ModuleManager.h"
-#include "Modules/ModuleInterface.h"
+#include "UnrealEd.h"
 
 IMPLEMENT_GAME_MODULE(FLathraiaHorrorUProjEditorModule, LathraiaHorrorUProjEditor)
 

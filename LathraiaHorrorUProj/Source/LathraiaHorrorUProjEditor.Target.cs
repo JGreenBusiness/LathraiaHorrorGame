@@ -10,6 +10,6 @@ public class LathraiaHorrorUProjEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.AddRange( new string[] { "LathraiaHorrorUProj", "LathraiaHorrorUProjEditor" } );
+		ExtraModuleNames.AddRange( new string[] { "LathraiaHorrorUProjEditor", "LathraiaHorrorUProj" } );
 	}
 }

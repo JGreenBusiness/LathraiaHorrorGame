@@ -17,10 +17,7 @@
 		{
 			"Name": "LathraiaHorrorUProjEditor",
 			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit",
-			"AdditionalDependencies": [
-				"Engine"
-			]
+			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [
