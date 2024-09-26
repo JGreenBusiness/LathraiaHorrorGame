@@ -14,7 +14,6 @@ public class LathraiaHorrorUProj : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"GameplayTags",
 			"AIModule"
 		});
 

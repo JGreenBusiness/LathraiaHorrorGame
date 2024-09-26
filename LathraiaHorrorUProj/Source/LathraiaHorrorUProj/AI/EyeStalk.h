@@ -55,7 +55,9 @@ protected:
 
 	void SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle);
 	
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk")

@@ -147,6 +147,7 @@ void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const
 	SetActorRotation(Rotation);
 }
 
+#if WITH_EDITOR
 void AEyeStalk::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -173,3 +174,4 @@ void AEyeStalk::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEve
 		SwingAngleMax_REM = SwingAngleMin_REM;
 	}
 }
+#endif
