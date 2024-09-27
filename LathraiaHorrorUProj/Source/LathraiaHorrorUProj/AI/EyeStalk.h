@@ -42,6 +42,8 @@ public:
 	UViewConeComponent* GetViewConeComponent() const { return ViewCone; }
 	float GetAwarenessMeterValue() const { return AwarenessMeter; }
 	EEyeStalkMode GetCurrentEyeStalkMode() const { return CurrentMode; }
+
+	UFUNCTION(BlueprintCallable)
 	bool GetEyeStalkActive() const { return bIsActive; }
 
 	void SetAwarenessMeterValue(const float Value) { AwarenessMeter = Value; }
@@ -119,7 +121,7 @@ protected:
 	float SwingAngleMax_REM = 30.f;
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* RootMesh = nullptr;
 
 	UPROPERTY(VisibleAnywhere)

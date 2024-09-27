@@ -64,10 +64,13 @@ void AEyeStalk::Tick(float DeltaSeconds)
 
 void AEyeStalk::SetEyeStalkMode(const EEyeStalkMode NewMode)
 {
-	if (const ALHCharacter* PlayerCharacter = EnemyHelpers::GetPlayerFromWorld(GetWorld()))
+	if (NewMode == ESM_Rem) // when entering REM, store the 'YawToPlayer'
 	{
-		const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-		YawToPlayer = FMath::RadiansToDegrees(ToPlayer.HeadingAngle());
+		if (const ALHCharacter* PlayerCharacter = EnemyHelpers::GetPlayerFromWorld(GetWorld()))
+		{
+			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			YawToPlayer = FMath::RadiansToDegrees(ToPlayer.HeadingAngle());
+		}
 	}
 		
 	CurrentMode = NewMode;
@@ -143,7 +146,13 @@ void AEyeStalk::Mode_Surveillance(const float DeltaSeconds)
 
 void AEyeStalk::Mode_SurveillanceEx(const float DeltaSeconds)
 {
-	GEngine->AddOnScreenDebugMessage(0, 3, FColor::Green, "TODO - Implement SurveillanceEx");
+	if (UEyeStalkManager* ESManager = GetWorld()->GetSubsystem<UEyeStalkManager>())
+	{
+		ESManager->ActivateRandomEyeStalk(this);
+
+		SetEyeStalkActive(false);
+		SetEyeStalkMode(ESM_Surveillance);
+	}
 }
 
 void AEyeStalk::Mode_Rem(const float DeltaSeconds)
