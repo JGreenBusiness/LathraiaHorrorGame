@@ -33,16 +33,22 @@ class LATHRAIAHORRORUPROJ_API AEyeStalk : public APawn
 public:
 	AEyeStalk();
 	
+protected:
+	virtual void BeginPlay() override;
+
+public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UViewConeComponent* GetViewConeComponent() const { return ViewCone; }
 	float GetAwarenessMeterValue() const { return AwarenessMeter; }
 	EEyeStalkMode GetCurrentEyeStalkMode() const { return CurrentMode; }
+	bool GetEyeStalkActive() const { return bIsActive; }
 
 	void SetAwarenessMeterValue(const float Value) { AwarenessMeter = Value; }
 	void SetEyeStalkMode(const EEyeStalkMode NewMode);
 	void SetEyeStalkPhase(const EEyeStalkPhase NewPhase) { CurrentPhase = NewPhase; }
-	
+	void SetEyeStalkActive(const bool bActive) { bIsActive = bActive; }
+
 	void IncreaseAwarenessMeter();
 
 protected:
@@ -67,7 +73,7 @@ protected:
 	UBehaviorTree* BehaviorTree_Aggro = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
-	bool bIsActive = false;
+	bool bIsActive = true;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk|Info")
 	float AwarenessMeter = 0.f;

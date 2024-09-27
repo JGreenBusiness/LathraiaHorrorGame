@@ -8,6 +8,7 @@
 #include "ViewConeComponent.h"
 #include "LHCharacter.h"
 #include "MathHelpers.h"
+#include "EyeStalkManager.h"
 
 AEyeStalk::AEyeStalk()
 {
@@ -23,10 +24,33 @@ AEyeStalk::AEyeStalk()
 	ViewCone->SetupAttachment(RootMesh);
 }
 
+void AEyeStalk::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UEyeStalkManager* ESManager = GetWorld()->GetSubsystem<UEyeStalkManager>())
+	{
+		ESManager->RegisterEyeStalk(this);
+	}
+}
+
 void AEyeStalk::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
+	if (!bIsActive)
+	{
+		if (AAIController* AIController = Cast<AAIController>(Controller))
+		{
+			if (UBehaviorTreeComponent* BehaviorComp = Cast<UBehaviorTreeComponent>(AIController->BrainComponent))
+			{
+				BehaviorComp->StopTree();
+			}
+		}
+
+		return;
+	}
+
 	switch (CurrentMode)
 	{
 		case ESM_Surveillance: Mode_Surveillance(DeltaSeconds); break;
@@ -151,6 +175,11 @@ void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const
 void AEyeStalk::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.Property == nullptr)
+	{
+		return;
+	}
 
 	const FName PropertyName = PropertyChangedEvent.Property->NamePrivate;
 
