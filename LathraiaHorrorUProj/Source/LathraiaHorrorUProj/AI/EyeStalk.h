@@ -68,56 +68,56 @@ protected:
 #endif
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
 	UBehaviorTree* BehaviorTree_Hunting = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
 	UBehaviorTree* BehaviorTree_Aggro = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
 	bool bIsActive = true;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk|Info")
+	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk Config: Info")
 	float AwarenessMeter = 0.f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk|Info")
+	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk Config: Info")
 	TEnumAsByte<EEyeStalkMode> CurrentMode = ESM_Surveillance;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk|Info")
+	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk Config: Info")
 	TEnumAsByte<EEyeStalkPhase> CurrentPhase = ESP_Hunting;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Awareness Modifiers")
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Awareness Modifiers")
 	float DistanceMultiplier = 1.f;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Awareness Modifiers")
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Awareness Modifiers")
 	float AngleMultiplier = 1.f;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Awareness Modifiers", meta=(ClampMin=0, ClampMax=1))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Awareness Modifiers", meta=(ClampMin=0, ClampMax=1))
 	float CrouchMultiplier = 0.5f;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Awareness Modifiers", meta=(ClampMin=1))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Awareness Modifiers", meta=(ClampMin=1))
 	float MovingMultiplier = 2.f;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Speed", meta=(ClampMin=1))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|Surveillance", DisplayName = "Swing Speed", meta=(ClampMin=1))
 	float SwingSpeed_Surveillance = 10.f;
 
 	// Minimum swing angle in degrees
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|Surveillance", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMin_Surveillance = -60.f;
 
 	// Maximum swing angle in degrees
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|Surveillance", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|Surveillance", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMax_Surveillance = 60.f;
 
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Speed", meta=(ClampMin=1))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Swing Speed", meta=(ClampMin=1))
 	float SwingSpeed_REM = 50.f;
 
 	// Minimum swing angle in degrees
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Swing Angle Min.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMin_REM = -30.f;
 
 	// Maximum swing angle in degrees
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk|Mode Modifiers|REM", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMax_REM = 30.f;
 
 protected:

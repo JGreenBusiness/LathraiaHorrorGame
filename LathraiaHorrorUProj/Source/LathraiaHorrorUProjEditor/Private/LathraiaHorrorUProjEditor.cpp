@@ -23,7 +23,10 @@ void FLathraiaHorrorUProjEditorModule::StartupModule()
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	{
 		TSharedRef<FPropertySection> Section = PropertyModule.FindOrCreateSection("EyeStalk", "Eye Stalk", FText::FromString("Eye Stalk"));
-		Section->AddCategory("Eye Stalk");
+		Section->AddCategory("Eye Stalk Config: General");
+		Section->AddCategory("Eye Stalk Config: Info");
+		Section->AddCategory("Eye Stalk Config: Awareness Modifiers");
+		Section->AddCategory("Eye Stalk Config: Mode Modifiers");
 	}
 	PropertyModule.NotifyCustomizationModuleChanged();
 }
