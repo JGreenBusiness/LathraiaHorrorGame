@@ -40,8 +40,10 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 			PlayerCharacter->GetActorLocation(),
 			ECC_Visibility,
 			Params);
+
+		const float DistToPlayer = FVector::Distance(EyeStalk->GetActorLocation(), PlayerCharacter->GetActorLocation());
 		
-		if (!HitResult.bBlockingHit && HitResult.Distance <= EyeStalk->GetViewConeComponent()->Length)
+		if (!HitResult.bBlockingHit && DistToPlayer <= EyeStalk->GetViewConeComponent()->Length)
 		{
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - EyeStalk->GetActorLocation()).GetSafeNormal();
 			const float Angle = MathHelpers::AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
