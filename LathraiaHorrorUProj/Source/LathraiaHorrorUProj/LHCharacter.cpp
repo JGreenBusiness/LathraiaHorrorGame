@@ -6,8 +6,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
-#include "LHGameplayTags.h"
 #include <EnhancedInputComponent.h>
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Lantern.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -20,18 +21,39 @@ ALHCharacter::ALHCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
+	
+
+	Mesh1P = Cast<USkeletalMeshComponent>(GetDefaultSubobjectByName(TEXT("CHaracterMesh0")));
 	Mesh1P->SetOnlyOwnerSee(true);
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->bCastDynamicShadow = false;
-	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+
+	CharacterMovementComponent = GetCharacterMovement();
+	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 }
 
 void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
+	if (LanternClass)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// Spawn the Blueprint actor
+			FActorSpawnParameters SpawnParams;
+			Lantern = Cast<ALantern>(World->SpawnActor<AActor>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams));
+
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Held, HeldLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_InUse, InUseLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Stowed, StowedLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+		}
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -40,21 +62,55 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	if (IsValid(Input))
 	{
-		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Look);
-		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Move);
-		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Jump);
-		Input->BindAction(CrouchInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Crouch);
-		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::Interact);
+		Input->BindAction(KBLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+		Input->BindAction(GamepadLookInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputLook);
+
+		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputMove);
+		Input->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ALHCharacter::InputSprintBegun);
+		Input->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputSprintEnded);
+
+		Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputJump);
+
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ALHCharacter::InputCrouch);
+		Input->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ALHCharacter::InputUnCrouch);
+
+		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
+
+		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
+
+		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
+		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
+
+		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
 	}
 }
 
-void ALHCharacter::OnPrimaryAction()
+void ALHCharacter::OnInteractAction()
 {
 	OnInteract.Broadcast();
 }
 
-void ALHCharacter::Move(const FInputActionValue& InputActionValue)
+void ALHCharacter::ToggleHeldLantern()
+{
+	if (Lantern)
+	{
+		Lantern->ToggleLanternHeldState(Mesh1P);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
+	}
+}
+
+void ALHCharacter::PlaceLanternDown()
+{
+	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
+	{
+		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_RekindleReady);
+	}
+}
+
+void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -75,7 +131,17 @@ void ALHCharacter::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Look(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputSprintBegun(const FInputActionValue& InputActionValue)
+{
+	CharacterMovementComponent->MaxWalkSpeed = SprintSpeed;
+}
+
+void ALHCharacter::InputSprintEnded(const FInputActionValue& InputActionValue)
+{
+	CharacterMovementComponent->MaxWalkSpeed = DefaultMaxWalkSpeed;
+}
+
+void ALHCharacter::InputLook(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
 	{
@@ -93,20 +159,45 @@ void ALHCharacter::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALHCharacter::Jump()
+void ALHCharacter::InputJump(const FInputActionValue& InputActionValue)
 {
 	Super::Jump();
-
-
 }
 
-void ALHCharacter::Crouch(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputCrouch(const FInputActionValue& InputActionValue)
 {
+	Super::Crouch();
 }
 
-void ALHCharacter::Interact(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputUnCrouch(const FInputActionValue& InputActionValue)
 {
-	OnPrimaryAction();
+	Super::UnCrouch();
+}
+
+void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
+{
+	OnInteractAction();
+}
+
+void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
+{
+	ToggleHeldLantern();
+}
+
+void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
+{
+	if (Lantern)
+	{
+		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_InUse);
+	}
+}
+
+void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
+{
+	if (Lantern)
+	{
+		PlaceLanternDown();
+	}
 }
 
 

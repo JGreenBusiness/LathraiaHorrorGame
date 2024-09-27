@@ -18,6 +18,8 @@ struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
+class ALantern;
+
 UCLASS(config = Game)
 class LATHRAIAHORRORUPROJ_API ALHCharacter : public ACharacter
 {
@@ -35,60 +37,119 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float TurnRateGamepad;
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
-	UPROPERTY(BlueprintAssignable, Category = "Interaction")
-	FOnInteract OnInteract;
+private:
+	float DefaultMaxWalkSpeed;
 
 protected:
 
-	void OnPrimaryAction();
+	void OnInteractAction();
+
+	void ToggleHeldLantern();
+
+	void PlaceLanternDown();
 
 	void TurnAtRate(float Rate);
 
 	void LookUpAtRate(float Rate);
 
 protected:
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	UCharacterMovementComponent* CharacterMovementComponent;
+	ALantern* Lantern = nullptr;
 
 public:
-	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	float TurnRateGamepad;
 
-public:
+	UPROPERTY(BlueprintAssignable, Category = "Interaction")
+	FOnInteract OnInteract;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(Category = "LHCharacter Config: Sprinting", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
+	float SprintSpeed = 600.0;
+
+	// Lantern Related Properties
+
+
+	UPROPERTY(Category = "LHCharacter Config: Lantern", EditDefaultsOnly)
+	TSubclassOf<ALantern> LanternClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName HeldLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName InUseLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName StowedLanternSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
+	FName RekindleLanternSocketName;
+
+
+
+	// Enhanced Input 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* KBLookInputAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* GamepadLookInputAction;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* MoveInputAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction*SprintInputAction;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* JumpInputAction;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* CrouchInputAction;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* InteractInputAction;
-	
-	void Move(const FInputActionValue& InputActionValue);
 
-	void Look(const FInputActionValue& InputActionValue);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* PrimaryInputAction;
 
-	virtual void Jump() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* SecondaryInputAction;
 
-	void Crouch(const FInputActionValue& InputActionValue);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* TertiaryInputAction;
 
-	void Interact(const FInputActionValue& InputActionValue);
+public:
 
+
+	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+
+	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	// Enhanced Input
+	void InputMove(const FInputActionValue& InputActionValue);
+
+	void InputSprintBegun(const FInputActionValue& InputActionValue);
+
+	void InputSprintEnded(const FInputActionValue& InputActionValue);
+
+	void InputLook(const FInputActionValue& InputActionValue);
+
+	void InputJump(const FInputActionValue& InputActionValue);
+
+	void InputCrouch(const FInputActionValue& InputActionValue);
+
+	void InputUnCrouch(const FInputActionValue& InputActionValue);
+
+	void InputInteract(const FInputActionValue& InputActionValue);
+
+	void InputPrimaryAction(const FInputActionValue& InputActionValue);
+
+	void InputSecondaryAction(const FInputActionValue& InputActionValue);
+
+	void InputTertieryAction(const FInputActionValue& InputActionValue);
 };
