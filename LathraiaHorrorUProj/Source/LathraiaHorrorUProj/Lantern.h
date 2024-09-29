@@ -15,6 +15,7 @@ enum class ELanternState : uint8
 	ELS_Held,
 	ELS_Stowed,
 	ELS_RekindleReady,
+	ELS_Rekindling,
 	ELS_InUse
 };
 

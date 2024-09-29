@@ -45,6 +45,9 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 		BurnRate = StowedBurnRate;
 		break;
 	case ELanternState::ELS_RekindleReady:
+		BurnRate = HeldBurnRate;
+		break;
+	case ELanternState::ELS_Rekindling:
 		BurnRate = RekindlingBurnRate;
 		FireIntensityTeirDestination = EFireIntensityTeir::EFT_TeirFive;
 		break;
