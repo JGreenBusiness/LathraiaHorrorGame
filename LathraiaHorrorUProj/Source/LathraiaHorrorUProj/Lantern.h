@@ -71,7 +71,6 @@ public:
 
 protected:
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
-
 	ELanternState CurrentLanternState;
 	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
 
@@ -95,6 +94,12 @@ public:
 	void SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState);
 
 	ELanternState GetActiveLanternState() { return CurrentLanternState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	const USkeletalMeshSocket* GetActiveLanternSocket() { return *LanternSockets.Find(CurrentLanternState); }
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern Sockets")
+	void OnLanternNewLanternState();
 
 	void ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets);
 
