@@ -37,6 +37,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 private:
@@ -48,16 +50,18 @@ protected:
 
 	void ToggleHeldLantern();
 
-	void PlaceLanternDown();
-
 	void TurnAtRate(float Rate);
 
 	void LookUpAtRate(float Rate);
+
+	void DisplaceLantern() { bLanternRekindleReady = false;}
 
 protected:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
 	ALantern* Lantern = nullptr;
+
+	bool bLanternRekindleReady = false;
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -66,7 +70,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FOnInteract OnInteract;
 
-	UPROPERTY(Category = "LHCharacter Config: Sprinting", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
+	UPROPERTY(Category = "LHCharacter Config: Locomotion", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
 
 	// Lantern Related Properties
@@ -121,7 +125,10 @@ public:
 	UInputAction* SecondaryInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
-	UInputAction* TertiaryInputAction;
+	UInputAction* PlaceLanternInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* RekindleLanternInputAction;
 
 public:
 
@@ -151,5 +158,7 @@ public:
 
 	void InputSecondaryAction(const FInputActionValue& InputActionValue);
 
-	void InputTertieryAction(const FInputActionValue& InputActionValue);
+	void InputPlaceLanternAction(const FInputActionValue& InputActionValue);
+
+	void InputRekindleLanternAction(const FInputActionValue& InputActionValue);
 };

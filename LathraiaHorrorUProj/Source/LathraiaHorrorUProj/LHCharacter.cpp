@@ -52,6 +52,7 @@ void ALHCharacter::BeginPlay()
 			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_InUse, InUseLanternSocketName);
 			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Stowed, StowedLanternSocketName);
 			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Rekindling, RekindleLanternSocketName);
 		}
 	}
 }
@@ -81,8 +82,17 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
 		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
 
-		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
+		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPlaceLanternAction);
+		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Completed, this, &ALHCharacter::DisplaceLantern);
+		
+		Input->BindAction(RekindleLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputRekindleLanternAction);
 	}
+}
+
+void ALHCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
 void ALHCharacter::OnInteractAction()
@@ -99,14 +109,6 @@ void ALHCharacter::ToggleHeldLantern()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
-	}
-}
-
-void ALHCharacter::PlaceLanternDown()
-{
-	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
-	{
-		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_RekindleReady);
 	}
 }
 
@@ -192,11 +194,20 @@ void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValu
 	}
 }
 
-void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionValue)
 {
-	if (Lantern)
+	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
 	{
-		PlaceLanternDown();
+		Lantern->SetLanternState(Mesh1P, ELanternState::ELS_RekindleReady);
+		bLanternRekindleReady = true;
+	}
+}
+
+void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActionValue)
+{
+	if (bLanternRekindleReady && Lantern)
+	{
+		Lantern->SetLanternState(Mesh1P, ELanternState::ELS_Rekindling);
 	}
 }
 

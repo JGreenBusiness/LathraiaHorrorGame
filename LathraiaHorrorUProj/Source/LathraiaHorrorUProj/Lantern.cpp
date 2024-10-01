@@ -45,6 +45,9 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 		BurnRate = StowedBurnRate;
 		break;
 	case ELanternState::ELS_RekindleReady:
+		BurnRate = HeldBurnRate;
+		break;
+	case ELanternState::ELS_Rekindling:
 		BurnRate = RekindlingBurnRate;
 		FireIntensityTeirDestination = EFireIntensityTeir::EFT_TeirFive;
 		break;
@@ -54,6 +57,8 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 	default:
 		break;
 	}
+
+	OnLanternNewLanternState();
 }
 
 float ALantern::LerpFlameIntensity(float DeltaTime)
@@ -82,24 +87,43 @@ void ALantern::Tick(float DeltaTime)
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Flame = %f%%"), (newLightIntensity / MaxLanternIntensity)*100));
+
+		switch (CurrentLanternState)
+		{
+		case ELanternState::ELS_Held:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Held")));
+			break;
+		case ELanternState::ELS_Stowed:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Stowed")));
+			break;
+		case ELanternState::ELS_RekindleReady:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling : ready")));
+			break;
+		case ELanternState::ELS_Rekindling:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling : active")));
+			break;
+		case ELanternState::ELS_InUse:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: In Use")));
+			break;
+		default:
+			break;
+		}
 	}
 
 }
 
 void ALantern::SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState)
 {
-	// Switches lantern state and attatches to mesh component if appropriate lantern socket is found 
+
 	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
 	{
-		if (AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
+		if (MeshWithLanternSockets->DoesSocketExist(LanternSocket->SocketName))
 		{
+			//AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, LanternSocket->SocketName);
 			ChangeLanternState(NewLanternState);
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Lantern.cpp: Could Not Attatch Lantern to Lantern Socket"));
-	}
+
 }
 
 void ALantern::ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets)
