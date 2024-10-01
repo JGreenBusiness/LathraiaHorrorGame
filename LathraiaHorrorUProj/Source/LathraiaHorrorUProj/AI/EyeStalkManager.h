@@ -20,18 +20,12 @@ public:
 	// Store pointer to 'NewEyeStalk'.
 	void RegisterEyeStalk(AEyeStalk* NewEyeStalk);
 
-	/*
-	* @param Point The point to find the closest EyeStalk to.
-	* @return The activated EyeStalk.
-	*/
-	AEyeStalk* ActivateClosestEyeStalk(FVector Point);
+	// Activates the closest EyeStalk to the passed in 'Point'.
+	void ActivateClosestEyeStalk(FVector Point);
 
-	/*
-	* @param IgnoredEyeStalks EyeStalk's to ignore when finding a random one.
-	* @param MaxIterations If we keep finding an ignored / active EyeStalk, we will only run this many times.
-	* @return The activated EyeStalk.
-	*/
-	AEyeStalk* ActivateRandomEyeStalk(TArray<AEyeStalk*> IgnoredEyeStalks, int32 MaxIterations = 10);
+	// Activate random EyeStalk, with optional 'IgnoredEyeStalk' to not activate.
+	// @param MaxIterations In the unlikely event we keep finding 'IgnoredEyeStalk' or already active stalks, we will only run 'MaxIterations' times.
+	void ActivateRandomEyeStalk(AEyeStalk* IgnoredEyeStalk = nullptr, int32 MaxIterations = 10);
 
 protected:
 	UPROPERTY()

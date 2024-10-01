@@ -10,7 +10,7 @@ void UEyeStalkManager::RegisterEyeStalk(AEyeStalk* NewEyeStalk)
 	EyeStalks.AddUnique(NewEyeStalk);
 }
 
-AEyeStalk* UEyeStalkManager::ActivateClosestEyeStalk(FVector Point)
+void UEyeStalkManager::ActivateClosestEyeStalk(FVector Point)
 {
 	// Find the closest EyeStalk
 	AEyeStalk* Closest = nullptr;
@@ -40,23 +40,21 @@ AEyeStalk* UEyeStalkManager::ActivateClosestEyeStalk(FVector Point)
 	{
 		Closest->SetEyeStalkActive(true);
 	}
-
-	return Closest;
 }
 
-AEyeStalk* UEyeStalkManager::ActivateRandomEyeStalk(TArray<AEyeStalk*> IgnoredEyeStalks, int32 MaxIterations)
+void UEyeStalkManager::ActivateRandomEyeStalk(AEyeStalk* IgnoredEyeStalk, int32 MaxIterations)
 {
 	int32 RandomIndex = FMath::RandHelper(EyeStalks.Num());
 	AEyeStalk* RandomEyeStalk = EyeStalks[RandomIndex];
 
 	// If the random eye stalk is null, ignored, or already active then re-run this function
 	if (!IsValid(RandomEyeStalk) || 
-		IgnoredEyeStalks.Contains(RandomEyeStalk) ||
+		RandomEyeStalk == IgnoredEyeStalk || 
 		RandomEyeStalk->GetEyeStalkActive())
 	{
 		if (MaxIterations > 0)
 		{
-			RandomEyeStalk = ActivateRandomEyeStalk(IgnoredEyeStalks, MaxIterations - 1);
+			ActivateRandomEyeStalk(IgnoredEyeStalk, MaxIterations - 1);
 		}
 	}
 	// Else we activate the random eye stalk
@@ -64,6 +62,4 @@ AEyeStalk* UEyeStalkManager::ActivateRandomEyeStalk(TArray<AEyeStalk*> IgnoredEy
 	{
 		RandomEyeStalk->SetEyeStalkActive(true);
 	}
-
-	return RandomEyeStalk;
 }
