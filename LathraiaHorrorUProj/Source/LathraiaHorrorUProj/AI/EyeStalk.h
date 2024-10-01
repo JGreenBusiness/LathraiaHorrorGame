@@ -58,8 +58,11 @@ protected:
 	UBehaviorTree* GetCurrentTree(const AAIController* AIController);
 	
 	void Mode_Surveillance(const float DeltaSeconds);
-	void Mode_SurveillanceEx(const float DeltaSeconds);
 	void Mode_Rem(const float DeltaSeconds);
+
+	void Mode_SurveillanceEx(const float DeltaSeconds);
+	void Random_SurveillanceEx();
+	void End_SurveillanceEx();
 
 	void SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle);
 	
@@ -120,6 +123,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMax_REM = 30.f;
 
+	// The interval between activating random EyeStalk's
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", meta=(Clampmin=1))
+	float RandomActivationInterval = 5.f;
+
+	// The total length of the SurveillanceEx mode
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", meta = (Clampmin = 1))
+	float TotalModeLength = 15.f;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* RootMesh = nullptr;
@@ -129,4 +140,10 @@ protected:
 
 	bool SwingDirection = true;
 	float YawToPlayer = 0.f;
+
+	FTimerHandle RandomEyeStalkTimer = FTimerHandle();
+	FTimerHandle SurveillanceExTimer = FTimerHandle();
+
+	UPROPERTY()
+	AEyeStalk* LastRandomEyeStalk = nullptr;
 };

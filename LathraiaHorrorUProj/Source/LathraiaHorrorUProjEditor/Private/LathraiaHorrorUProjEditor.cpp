@@ -27,6 +27,7 @@ void FLathraiaHorrorUProjEditorModule::StartupModule()
 		Section->AddCategory("Eye Stalk Config: Info");
 		Section->AddCategory("Eye Stalk Config: Awareness Modifiers");
 		Section->AddCategory("Eye Stalk Config: Mode Modifiers");
+		Section->AddCategory("View Cone");
 	}
 	PropertyModule.NotifyCustomizationModuleChanged();
 }
