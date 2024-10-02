@@ -19,15 +19,20 @@ void FLathraiaHorrorUProjEditorModule::StartupModule()
 		Visualizer->OnRegister();
 	}
 
-	// Add a section filter for the 'Eye Stalk' category, on the EyeStalk class
+	// Add section filters for custom classes ...
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	{
-		TSharedRef<FPropertySection> Section = PropertyModule.FindOrCreateSection("EyeStalk", "Eye Stalk", FText::FromString("Eye Stalk"));
-		Section->AddCategory("Eye Stalk Config: General");
-		Section->AddCategory("Eye Stalk Config: Info");
-		Section->AddCategory("Eye Stalk Config: Awareness Modifiers");
-		Section->AddCategory("Eye Stalk Config: Mode Modifiers");
-		Section->AddCategory("View Cone");
+		// ... EyeStalk
+		TSharedRef<FPropertySection> Section_EyeStalk = PropertyModule.FindOrCreateSection("EyeStalk", "Eye Stalk", FText::FromString("Eye Stalk"));
+		Section_EyeStalk->AddCategory("Eye Stalk Config: General");
+		Section_EyeStalk->AddCategory("Eye Stalk Config: Info");
+		Section_EyeStalk->AddCategory("Eye Stalk Config: Awareness Modifiers");
+		Section_EyeStalk->AddCategory("Eye Stalk Config: Mode Modifiers");
+		Section_EyeStalk->AddCategory("View Cone");
+
+		// ... Tendril
+		TSharedRef<FPropertySection> Section_Tendril = PropertyModule.FindOrCreateSection("Tendril", "Tendril", FText::FromString("Tendril"));
+		Section_Tendril->AddCategory("Tendril Config: General");
 	}
 	PropertyModule.NotifyCustomizationModuleChanged();
 }

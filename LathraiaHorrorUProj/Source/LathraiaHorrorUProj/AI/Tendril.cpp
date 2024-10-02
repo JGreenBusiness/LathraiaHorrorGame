@@ -5,7 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "LathraiaHorrorUProj/LHCharacter.h"
-#include "EyeStalkManager.h"
+#include "EyeStalk.h"
 
 ATendril::ATendril()
 {
@@ -43,8 +43,9 @@ void ATendril::DamagePlayer(ALHCharacter* PlayerCharacter)
 
 void ATendril::NotifyEyeStalks(ALHCharacter* PlayerCharacter)
 {
-	if (UEyeStalkManager* ESManager = GetWorld()->GetSubsystem<UEyeStalkManager>())
+	for (AEyeStalk* EyeStalk : EyeStalksToAggro)
 	{
-		ESManager->ActivateClosestEyeStalk(GetActorLocation());
+		EyeStalk->SetEyeStalkActive(true);
+		EyeStalk->SetEyeStalkPhase(ESP_Aggro);
 	}
 }

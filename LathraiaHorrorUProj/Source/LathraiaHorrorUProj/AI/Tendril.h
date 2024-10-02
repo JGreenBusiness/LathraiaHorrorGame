@@ -8,6 +8,7 @@
 
 class ALHCharacter;
 class UBoxComponent;
+class AEyeStalk;
 
 UCLASS()
 class LATHRAIAHORRORUPROJ_API ATendril : public AActor
@@ -27,10 +28,14 @@ protected:
 	void NotifyEyeStalks(ALHCharacter* PlayerCharacter);
 	
 protected:
-	UPROPERTY(EditAnywhere)
+	// When player collides with us, which EyeStalk's should we aggro?
+	UPROPERTY(EditAnywhere, Category = "Tendril Config: General")
+	TArray<AEyeStalk*> EyeStalksToAggro = {};
+
+	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* BoxCollider = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* TendrilMesh = nullptr;
 
 };
