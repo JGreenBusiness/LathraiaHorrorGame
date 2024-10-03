@@ -25,8 +25,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Tick And Check Timer") // What key to store the timer value in.
 	FBlackboardKeySelector TimerKey;
 
-	UPROPERTY(EditAnywhere, Category = "Tick And Check Timer")
-	float TimerMax = 3.f;
+	UPROPERTY(EditAnywhere, Category = "Tick And Check Timer") // What key to store the timer max value in.
+	FBlackboardKeySelector TimerMaxKey;
 
 	// MinValue is being used as the 'None' / 'Null' value
 	FDateTime LastTime = FDateTime::MinValue();

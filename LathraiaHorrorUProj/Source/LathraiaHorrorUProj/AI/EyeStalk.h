@@ -9,6 +9,7 @@
 class AAIController;
 class UViewConeComponent;
 class UBehaviorTree;
+class AEyeNest;
 
 UENUM()
 enum EEyeStalkMode
@@ -32,7 +33,9 @@ class LATHRAIAHORRORUPROJ_API AEyeStalk : public APawn
 
 public:
 	AEyeStalk();
-	
+
+	friend AEyeNest;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -42,6 +45,8 @@ public:
 	UViewConeComponent* GetViewConeComponent() const { return ViewCone; }
 	float GetAwarenessMeterValue() const { return AwarenessMeter; }
 	EEyeStalkMode GetCurrentEyeStalkMode() const { return CurrentMode; }
+	AEyeNest* GetCurrentEyeNest() const { return CurrentEyeNest; }
+	AEyeNest* GetDefaultEyeNest() const { return DefaultEyeNest; }
 
 	UFUNCTION(BlueprintCallable)
 	bool GetEyeStalkActive() const { return bIsActive; }
@@ -58,13 +63,11 @@ protected:
 	UBehaviorTree* GetCurrentTree(const AAIController* AIController);
 	
 	void Mode_Surveillance(const float DeltaSeconds);
+	void Mode_SurveillanceEx(const float DeltaSeconds);
 	void Mode_Rem(const float DeltaSeconds);
 
-	void Mode_SurveillanceEx(const float DeltaSeconds);
-	void Random_SurveillanceEx();
-	void End_SurveillanceEx();
-
 	void SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle);
+	void UpdateTreeKeys();
 	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -123,13 +126,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Swing Angle Max.", meta=(ClampMin=-180, ClampMax=180))
 	float SwingAngleMax_REM = 30.f;
 
-	// The interval between activating random EyeStalk's
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", meta=(Clampmin=1))
-	float RandomActivationInterval = 5.f;
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|REM", DisplayName = "Timer Max.", meta = (ClampMin = 1))
+	float REMTimerMax = 5.f;
 
-	// The total length of the SurveillanceEx mode
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", meta = (Clampmin = 1))
-	float TotalModeLength = 15.f;
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx")
+	AEyeNest* DefaultEyeNest = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", DisplayName = "Interval Max.", meta = (ClampMin = 1))
+	float SurveillanceExTimer_IntervalMax = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: Mode Modifiers|SurveillanceEx", DisplayName = "Total Max.", meta = (ClampMin = 1))
+	float SurveillanceExTimer_TotalMax = 15.f;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -141,9 +148,6 @@ protected:
 	bool SwingDirection = true;
 	float YawToPlayer = 0.f;
 
-	FTimerHandle RandomEyeStalkTimer = FTimerHandle();
-	FTimerHandle SurveillanceExTimer = FTimerHandle();
-
 	UPROPERTY()
-	AEyeStalk* LastRandomEyeStalk = nullptr;
+	AEyeNest* CurrentEyeNest = nullptr;
 };

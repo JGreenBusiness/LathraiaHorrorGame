@@ -3,12 +3,11 @@
 
 #include "EyeStalk.h"
 
-#include "AIController.h"
 #include "EnemyHelpers.h"
 #include "ViewConeComponent.h"
-#include "LHCharacter.h"
 #include "MathHelpers.h"
-#include "EyeStalkManager.h"
+#include "EyeNest.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AEyeStalk::AEyeStalk()
 {
@@ -28,10 +27,7 @@ void AEyeStalk::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UEyeStalkManager* ESManager = GetWorld()->GetSubsystem<UEyeStalkManager>())
-	{
-		ESManager->RegisterEyeStalk(this);
-	}
+	DefaultEyeNest->AttachEyeStalk(this);
 }
 
 void AEyeStalk::Tick(float DeltaSeconds)
@@ -49,6 +45,7 @@ void AEyeStalk::Tick(float DeltaSeconds)
 		}
 
 		SelectBehaviorTree();
+		UpdateTreeKeys();
 	}
 }
 
@@ -61,16 +58,6 @@ void AEyeStalk::SetEyeStalkMode(const EEyeStalkMode NewMode)
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 			YawToPlayer = FMath::RadiansToDegrees(ToPlayer.HeadingAngle());
 		}
-	}
-	else if (NewMode == ESM_SurveillanceEx)
-	{
-		// De-activate EyeStalk
-		SetEyeStalkActive(false);
-
-		// Set-up timers
-		FTimerManager& TimerManager = GetWorld()->GetTimerManager();
-		TimerManager.SetTimer(RandomEyeStalkTimer, this, &AEyeStalk::Random_SurveillanceEx, RandomActivationInterval, true, 0.f);
-		TimerManager.SetTimer(SurveillanceExTimer, this, &AEyeStalk::End_SurveillanceEx, TotalModeLength, false);
 	}
 		
 	CurrentMode = NewMode;
@@ -151,41 +138,7 @@ void AEyeStalk::Mode_Rem(const float DeltaSeconds)
 
 void AEyeStalk::Mode_SurveillanceEx(const float DeltaSeconds)
 {
-	// TODO - implement SurveillanceEx logic
-}
-
-void AEyeStalk::Random_SurveillanceEx()
-{
-	// De-activate last random EyeStalk
-	if (IsValid(LastRandomEyeStalk))
-	{
-		LastRandomEyeStalk->SetEyeStalkActive(false);
-	}
-
-	// Activate random EyeStalk
-	if (UEyeStalkManager* ESManager = GetWorld()->GetSubsystem<UEyeStalkManager>())
-	{
-		LastRandomEyeStalk = ESManager->ActivateRandomEyeStalk({ this, LastRandomEyeStalk });
-	}
-}
-
-void AEyeStalk::End_SurveillanceEx()
-{
-	// De-activate last activated EyeStalk
-	if (IsValid(LastRandomEyeStalk))
-	{
-		LastRandomEyeStalk->SetEyeStalkActive(false);
-	}
-	LastRandomEyeStalk = nullptr;
-
-	// Stop the timers
-	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
-	TimerManager.ClearTimer(RandomEyeStalkTimer);
-	TimerManager.ClearTimer(SurveillanceExTimer);
-
-	// Re-activate us
-	SetEyeStalkActive(true);
-	SetEyeStalkMode(ESM_Surveillance);
+	Mode_Surveillance(DeltaSeconds); // for now, we do the same as Surveillance mode
 }
 
 void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle)
@@ -206,6 +159,19 @@ void AEyeStalk::SwingEye(const float SwingSpeed, const float MinimumAngle, const
 	Rotation.Yaw += SwingSpeed * (SwingDirection ? 1.f : -1.f);
 	
 	SetActorRotation(Rotation);
+}
+
+void AEyeStalk::UpdateTreeKeys()
+{
+	if (AAIController* AIController = Cast<AAIController>(Controller))
+	{
+		if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
+		{
+			BlackboardComp->SetValueAsFloat("REMTimer_Max", REMTimerMax);
+			BlackboardComp->SetValueAsFloat("SurveillanceExTimer_Interval_Max", SurveillanceExTimer_IntervalMax);
+			BlackboardComp->SetValueAsFloat("SurveillanceExTimer_Total_Max", SurveillanceExTimer_TotalMax);
+		}
+	}
 }
 
 #if WITH_EDITOR

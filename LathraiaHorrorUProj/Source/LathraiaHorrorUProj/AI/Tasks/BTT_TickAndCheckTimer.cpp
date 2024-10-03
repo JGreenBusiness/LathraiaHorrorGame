@@ -10,6 +10,7 @@ UBTT_TickAndCheckTimer::UBTT_TickAndCheckTimer()
 	NodeName = "Tick And Check Timer";
 
 	TimerKey.AddFloatFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_TickAndCheckTimer, TimerKey));
+	TimerMaxKey.AddFloatFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_TickAndCheckTimer, TimerMaxKey));
 }
 
 EBTNodeResult::Type UBTT_TickAndCheckTimer::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -23,8 +24,9 @@ EBTNodeResult::Type UBTT_TickAndCheckTimer::ExecuteTask(UBehaviorTreeComponent& 
 		
 		const float DeltaSeconds = (FDateTime::Now() - LastTime).GetTotalSeconds();
 		const float TimerValue = BlackboardComp->GetValueAsFloat(TimerKey.SelectedKeyName) + DeltaSeconds;
+		const float TimerMaxValue = BlackboardComp->GetValueAsFloat(TimerMaxKey.SelectedKeyName);
 
-		if (TimerValue >= TimerMax)
+		if (TimerValue >= TimerMaxValue)
 		{
 			BlackboardComp->SetValueAsFloat(TimerKey.SelectedKeyName, 0.f);
 			LastTime = FDateTime::MinValue();

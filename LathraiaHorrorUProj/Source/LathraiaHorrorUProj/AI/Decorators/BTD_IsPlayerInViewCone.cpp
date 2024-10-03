@@ -8,6 +8,7 @@
 #include "ViewConeComponent.h"
 #include "LHCharacter.h"
 #include "MathHelpers.h"
+#include "EyeNest.h"
 
 UBTD_IsPlayerInViewCone::UBTD_IsPlayerInViewCone()
 {
@@ -33,6 +34,7 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(PlayerCharacter);
 		Params.AddIgnoredActor(EyeStalk);
+		Params.AddIgnoredActor(EyeStalk->GetCurrentEyeNest());
 		
 		GetWorld()->LineTraceSingleByChannel(
 			HitResult,
