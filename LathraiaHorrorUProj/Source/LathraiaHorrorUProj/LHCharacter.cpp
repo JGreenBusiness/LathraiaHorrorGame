@@ -21,14 +21,6 @@ ALHCharacter::ALHCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	
-
-	Mesh1P = Cast<USkeletalMeshComponent>(GetDefaultSubobjectByName(TEXT("CHaracterMesh0")));
-	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
-	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
-
 	CharacterMovementComponent = GetCharacterMovement();
 	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 }
@@ -46,13 +38,13 @@ void ALHCharacter::BeginPlay()
 		{
 			// Spawn the Blueprint actor
 			FActorSpawnParameters SpawnParams;
-			Lantern = Cast<ALantern>(World->SpawnActor<AActor>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams));
-
-			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Held, HeldLanternSocketName);
-			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_InUse, InUseLanternSocketName);
-			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Stowed, StowedLanternSocketName);
-			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
-			Lantern->AddLanternSocket(Mesh1P, ELanternState::ELS_Rekindling, RekindleLanternSocketName);
+			Lantern = World->SpawnActor<ALantern>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+			Lantern->InitializeLantern(GetMesh());
+			Lantern->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
 		}
 	}
 }
@@ -104,7 +96,7 @@ void ALHCharacter::ToggleHeldLantern()
 {
 	if (Lantern)
 	{
-		Lantern->ToggleLanternHeldState(Mesh1P);
+		Lantern->ToggleLanternHeldState();
 	}
 	else
 	{
@@ -190,7 +182,7 @@ void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValu
 {
 	if (Lantern)
 	{
-		Lantern->SetLanternState(Mesh1P,ELanternState::ELS_InUse);
+		Lantern->SetLanternState(ELanternState::ELS_InUse);
 	}
 }
 
@@ -198,7 +190,7 @@ void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionV
 {
 	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
 	{
-		Lantern->SetLanternState(Mesh1P, ELanternState::ELS_RekindleReady);
+		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
 		bLanternRekindleReady = true;
 	}
 }
@@ -207,7 +199,7 @@ void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActi
 {
 	if (bLanternRekindleReady && Lantern)
 	{
-		Lantern->SetLanternState(Mesh1P, ELanternState::ELS_Rekindling);
+		Lantern->SetLanternState(ELanternState::ELS_Rekindling);
 	}
 }
 

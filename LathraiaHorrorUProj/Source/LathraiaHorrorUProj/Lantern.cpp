@@ -22,14 +22,19 @@ ALantern::ALantern()
 	MaxLanternIntensity = CurrentFlameIntensity;
 }
 
-void ALantern::AddLanternSocket(USkeletalMeshComponent* ActorMeshComponent, ELanternState LanternState, FName LanternSocketName)
+void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketName)
 {
-	LanternSockets.Add(LanternState, ActorMeshComponent->GetSocketByName(LanternSocketName));
+	LanternSockets.Add(LanternState, MeshWithLanternSockets->GetSocketByName(LanternSocketName));
 }
 
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!IsValid(MeshWithLanternSockets))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: InitialiseLantern not called"));
+	}
 }
 
 void ALantern::ChangeLanternState(ELanternState NewLanternState)
@@ -112,24 +117,47 @@ void ALantern::Tick(float DeltaTime)
 
 }
 
-void ALantern::SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState)
+void ALantern::SetLanternState(ELanternState NewLanternState)
 {
-
 	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
 	{
 		if (MeshWithLanternSockets->DoesSocketExist(LanternSocket->SocketName))
 		{
-			//AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, LanternSocket->SocketName);
 			ChangeLanternState(NewLanternState);
 		}
 	}
-
+	
 }
 
-void ALantern::ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets)
+USkeletalMeshComponent* ALantern::GetMeshWithLanternSockets()
+{
+	if (MeshWithLanternSockets)
+	{
+		return MeshWithLanternSockets;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: MeshWithLanternSockets is a nullptr"));
+	}
+	return nullptr;
+}
+
+void ALantern::AttatchLanternToActiveSocket()
+{
+	if (MeshWithLanternSockets)
+	{
+		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, GetActiveLanternSocket()->SocketName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: MeshWithLanternSockets is a nullptr"));
+	}
+}
+
+void ALantern::ToggleLanternHeldState()
 {
 	CurrentLanternState == ELanternState::ELS_Held?
-		SetLanternState(MeshWithLanternSockets,ELanternState::ELS_Stowed):
-		SetLanternState(MeshWithLanternSockets,ELanternState::ELS_Held);
+		SetLanternState(ELanternState::ELS_Stowed):
+		SetLanternState(ELanternState::ELS_Held);
 }
 
