@@ -21,14 +21,6 @@ ALHCharacter::ALHCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	
-
-	Mesh1P = Cast<USkeletalMeshComponent>(GetDefaultSubobjectByName(TEXT("CHaracterMesh0")));
-	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
-	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
-
 	CharacterMovementComponent = GetCharacterMovement();
 	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 }
@@ -36,6 +28,25 @@ ALHCharacter::ALHCharacter()
 void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
+	if (LanternClass)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// Spawn the Blueprint actor
+			FActorSpawnParameters SpawnParams;
+			Lantern = World->SpawnActor<ALantern>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+			Lantern->InitializeLantern(GetMesh());
+			Lantern->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
+		}
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -63,8 +74,17 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
 		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
 
-		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
+		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPlaceLanternAction);
+		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Completed, this, &ALHCharacter::DisplaceLantern);
+		
+		Input->BindAction(RekindleLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputRekindleLanternAction);
 	}
+}
+
+void ALHCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
 void ALHCharacter::OnInteractAction()
@@ -81,14 +101,6 @@ void ALHCharacter::ToggleHeldLantern()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
-	}
-}
-
-void ALHCharacter::PlaceLanternDown()
-{
-	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELS_RekindleReady)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
 	}
 }
 
@@ -174,11 +186,20 @@ void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValu
 	}
 }
 
-void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionValue)
 {
-	if (Lantern)
+	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
 	{
-		PlaceLanternDown();
+		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
+		bLanternRekindleReady = true;
+	}
+}
+
+void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActionValue)
+{
+	if (bLanternRekindleReady && Lantern)
+	{
+		Lantern->SetLanternState(ELanternState::ELS_Rekindling);
 	}
 }
 

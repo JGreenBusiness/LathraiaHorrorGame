@@ -3,7 +3,6 @@
 
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
-#include "LHCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/PointLightComponent.h"
 #include "Math/UnrealMathUtility.h"
@@ -23,21 +22,18 @@ ALantern::ALantern()
 	MaxLanternIntensity = CurrentFlameIntensity;
 }
 
+void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketName)
+{
+	LanternSockets.Add(LanternState, MeshWithLanternSockets->GetSocketByName(LanternSocketName));
+}
+
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<ALHCharacter>( UGameplayStatics::GetPlayerCharacter(this, 0));
-	USkeletalMeshComponent* playerMeshComponent = Player->GetMesh();
-
-	LanternSockets.Add(ELanternState::ELS_Held, playerMeshComponent->GetSocketByName(HeldLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_Stowed, playerMeshComponent->GetSocketByName(StowedLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_RekindleReady, playerMeshComponent->GetSocketByName(RekindleLanternSocketName));
-	LanternSockets.Add(ELanternState::ELS_InUse, playerMeshComponent->GetSocketByName(InUseLanternSocketName));
-
-	if (bSpawnOnPlayer)
+	if (!IsValid(MeshWithLanternSockets))
 	{
-		SetLanternState(DefaultLanternSocket);
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: InitialiseLantern not called"));
 	}
 }
 
@@ -54,6 +50,9 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 		BurnRate = StowedBurnRate;
 		break;
 	case ELanternState::ELS_RekindleReady:
+		BurnRate = HeldBurnRate;
+		break;
+	case ELanternState::ELS_Rekindling:
 		BurnRate = RekindlingBurnRate;
 		FireIntensityTeirDestination = EFireIntensityTeir::EFT_TeirFive;
 		break;
@@ -63,6 +62,8 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 	default:
 		break;
 	}
+
+	OnLanternNewLanternState();
 }
 
 float ALantern::LerpFlameIntensity(float DeltaTime)
@@ -91,28 +92,65 @@ void ALantern::Tick(float DeltaTime)
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Flame = %f%%"), (newLightIntensity / MaxLanternIntensity)*100));
+
+		switch (CurrentLanternState)
+		{
+		case ELanternState::ELS_Held:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Held")));
+			break;
+		case ELanternState::ELS_Stowed:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Stowed")));
+			break;
+		case ELanternState::ELS_RekindleReady:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling : ready")));
+			break;
+		case ELanternState::ELS_Rekindling:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling : active")));
+			break;
+		case ELanternState::ELS_InUse:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: In Use")));
+			break;
+		default:
+			break;
+		}
 	}
 
 }
 
 void ALantern::SetLanternState(ELanternState NewLanternState)
 {
-	if (!Player->HasLantern())
-	{
-		Player->SetLantern(this);
-	}
-
-	// Switches lantern state and attatches to mesh component if appropriate lantern socket is found 
 	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
 	{
-		if (AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LanternSocket->SocketName))
+		if (MeshWithLanternSockets->DoesSocketExist(LanternSocket->SocketName))
 		{
 			ChangeLanternState(NewLanternState);
 		}
 	}
+	
+}
+
+USkeletalMeshComponent* ALantern::GetMeshWithLanternSockets()
+{
+	if (MeshWithLanternSockets)
+	{
+		return MeshWithLanternSockets;
+	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lantern.cpp: Could Not Attatch Lantern to Lantern Socket"));
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: MeshWithLanternSockets is a nullptr"));
+	}
+	return nullptr;
+}
+
+void ALantern::AttatchLanternToActiveSocket()
+{
+	if (MeshWithLanternSockets)
+	{
+		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, GetActiveLanternSocket()->SocketName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: MeshWithLanternSockets is a nullptr"));
 	}
 }
 

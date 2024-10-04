@@ -7,7 +7,6 @@
 #include "Lantern.generated.h"
 
 class USkeletalMeshSocket;
-class ALHCharacter;
 class UPointLightComponent;
 
 UENUM()
@@ -16,6 +15,7 @@ enum class ELanternState : uint8
 	ELS_Held,
 	ELS_Stowed,
 	ELS_RekindleReady,
+	ELS_Rekindling,
 	ELS_InUse
 };
 
@@ -49,9 +49,6 @@ protected:
 
 	float LerpFlameIntensity(float DeltaTime);
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
-	bool bSpawnOnPlayer = true;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float StowedDimedRatio = .3;
 
@@ -72,23 +69,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
 	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName HeldLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName InUseLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName StowedLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName RekindleLanternSocketName;
-
 protected:
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
-
-	ALHCharacter* Player;
-
+	USkeletalMeshComponent* MeshWithLanternSockets;
 	ELanternState CurrentLanternState;
 	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
 
@@ -106,13 +89,27 @@ protected:
 	float CurrentFlameIntensity;
 
 public:	
+	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh) { MeshWithLanternSockets = LanternSocketedMesh; }
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void SetLanternState(ELanternState NewLanternState);
 
-	ELanternState GetActiveSocketState() { return CurrentLanternState; }
+	ELanternState GetActiveLanternState() { return CurrentLanternState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	const USkeletalMeshSocket* GetActiveLanternSocket() { return *LanternSockets.Find(CurrentLanternState); }
+
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	USkeletalMeshComponent* GetMeshWithLanternSockets();
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	void AttatchLanternToActiveSocket();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern Sockets")
+	void OnLanternNewLanternState();
 
 	void ToggleLanternHeldState();
 
+	void AddLanternSocket(ELanternState LanternState, FName LanternSocketName);
 };
