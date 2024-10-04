@@ -30,11 +30,6 @@ void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketN
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!IsValid(MeshWithLanternSockets))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: InitialiseLantern not called"));
-	}
 }
 
 void ALantern::ChangeLanternState(ELanternState NewLanternState)
@@ -146,7 +141,7 @@ void ALantern::AttatchLanternToActiveSocket()
 {
 	if (MeshWithLanternSockets)
 	{
-		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, GetActiveLanternSocket()->SocketName);
+		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetActiveLanternSocket()->SocketName);
 	}
 	else
 	{

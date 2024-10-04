@@ -29,8 +29,6 @@ void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-
 	if (LanternClass)
 	{
 		UWorld* World = GetWorld();
@@ -45,6 +43,8 @@ void ALHCharacter::BeginPlay()
 			Lantern->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
 			Lantern->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
 			Lantern->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
+
+			Lantern->SetLanternState(ELanternState::ELS_Held);
 		}
 	}
 }

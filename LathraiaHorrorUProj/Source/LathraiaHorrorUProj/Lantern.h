@@ -64,11 +64,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float RekindlingBurnRate = .5f;
 
-
-	// Socket Logic
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
-
 protected:
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
 	USkeletalMeshComponent* MeshWithLanternSockets;
