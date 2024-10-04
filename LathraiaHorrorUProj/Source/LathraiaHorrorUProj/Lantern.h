@@ -71,6 +71,7 @@ public:
 
 protected:
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
+	USkeletalMeshComponent* MeshWithLanternSockets;
 	ELanternState CurrentLanternState;
 	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
 
@@ -88,20 +89,27 @@ protected:
 	float CurrentFlameIntensity;
 
 public:	
+	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh) { MeshWithLanternSockets = LanternSocketedMesh; }
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetLanternState(USceneComponent* MeshWithLanternSockets,ELanternState NewLanternState);
+	void SetLanternState(ELanternState NewLanternState);
 
 	ELanternState GetActiveLanternState() { return CurrentLanternState; }
 
 	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
 	const USkeletalMeshSocket* GetActiveLanternSocket() { return *LanternSockets.Find(CurrentLanternState); }
 
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	USkeletalMeshComponent* GetMeshWithLanternSockets();
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	void AttatchLanternToActiveSocket();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern Sockets")
 	void OnLanternNewLanternState();
 
-	void ToggleLanternHeldState(USceneComponent* MeshWithLanternSockets);
+	void ToggleLanternHeldState();
 
-	void AddLanternSocket(USkeletalMeshComponent* ActorMeshComponent, ELanternState LanternState, FName LanternSocketName);
+	void AddLanternSocket(ELanternState LanternState, FName LanternSocketName);
 };
