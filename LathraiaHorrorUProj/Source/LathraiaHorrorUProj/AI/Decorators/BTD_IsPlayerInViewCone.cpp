@@ -5,7 +5,6 @@
 
 #include "EnemyHelpers.h"
 #include "EyeStalk.h"
-#include "ViewConeComponent.h"
 #include "LHCharacter.h"
 #include "MathHelpers.h"
 #include "EyeNest.h"
@@ -45,12 +44,12 @@ bool UBTD_IsPlayerInViewCone::CalculateRawConditionValue(UBehaviorTreeComponent&
 
 		const float DistToPlayer = FVector::Distance(EyeStalk->GetActorLocation(), PlayerCharacter->GetActorLocation());
 		
-		if (!HitResult.bBlockingHit && DistToPlayer <= EyeStalk->GetViewConeComponent()->Length)
+		if (!HitResult.bBlockingHit && DistToPlayer <= EyeStalk->GetViewConeLength())
 		{
 			const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - EyeStalk->GetActorLocation()).GetSafeNormal();
 			const float Angle = MathHelpers::AngleBetweenVectors(EyeStalk->GetActorForwardVector(), ToPlayer);
 			
-			if (Angle <= (EyeStalk->GetViewConeComponent()->HalfAngle))
+			if (Angle <= (EyeStalk->GetViewConeHalfAngle()))
 			{
 				return true;
 			}

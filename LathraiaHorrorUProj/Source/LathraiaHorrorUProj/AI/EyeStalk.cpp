@@ -4,10 +4,10 @@
 #include "EyeStalk.h"
 
 #include "EnemyHelpers.h"
-#include "ViewConeComponent.h"
 #include "MathHelpers.h"
 #include "EyeNest.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "EyeStalkVisualizerComponent.h"
 
 AEyeStalk::AEyeStalk()
 {
@@ -19,15 +19,17 @@ AEyeStalk::AEyeStalk()
 	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
 	SetRootComponent(RootMesh);
 
-	ViewCone = CreateDefaultSubobject<UViewConeComponent>("View Cone");
-	ViewCone->SetupAttachment(RootMesh);
+	VisualizerComp = CreateDefaultSubobject<UEyeStalkVisualizerComponent>("Visualizer");
 }
 
 void AEyeStalk::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DefaultEyeNest->AttachEyeStalk(this);
+	if (IsValid(DefaultEyeNest))
+	{
+		DefaultEyeNest->AttachEyeStalk(this);
+	}
 }
 
 void AEyeStalk::Tick(float DeltaSeconds)
@@ -75,12 +77,12 @@ void AEyeStalk::IncreaseAwarenessMeter()
 
 	// -> Distance from eye
 	const float DistanceFromEye = FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	Amount += (1.f - MathHelpers::Clamp01(DistanceFromEye / ViewCone->Length)) * DistanceMultiplier;
+	Amount += (1.f - MathHelpers::Clamp01(DistanceFromEye / ViewCone_Length)) * DistanceMultiplier;
 
 	// -> Angle from center of view cone
 	const FVector ToPlayer = (PlayerCharacter->GetActorLocation()- GetActorLocation()).GetSafeNormal();
 	const float AngleFromCenter = MathHelpers::AngleBetweenVectors(GetActorForwardVector(), ToPlayer);
-	Amount += (1.f - MathHelpers::Clamp01(AngleFromCenter / ViewCone->HalfAngle)) * AngleMultiplier;
+	Amount += (1.f - MathHelpers::Clamp01(AngleFromCenter / ViewCone_HalfAngle)) * AngleMultiplier;
 
 	// -> Player stance (Standing or crouching)
 	Amount *= (PlayerCharacter->bIsCrouched ? CrouchMultiplier : 1.f);
