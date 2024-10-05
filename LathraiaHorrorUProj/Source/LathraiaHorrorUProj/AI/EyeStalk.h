@@ -10,6 +10,7 @@ class AAIController;
 class UBehaviorTree;
 class AEyeNest;
 class UEyeStalkVisualizerComponent;
+class ASpectralEye;
 
 UENUM()
 enum EEyeStalkMode
@@ -60,15 +61,13 @@ public:
 	void IncreaseAwarenessMeter();
 
 protected:
-	void SelectBehaviorTree();
-	UBehaviorTree* GetCurrentTree(const AAIController* AIController);
-	
 	void Mode_Surveillance(const float DeltaSeconds);
 	void Mode_SurveillanceEx(const float DeltaSeconds);
 	void Mode_Rem(const float DeltaSeconds);
 
 	void SwingEye(const float SwingSpeed, const float MinimumAngle, const float MaximumAngle);
 	void UpdateTreeKeys();
+	void CheckAggroStatus();
 	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -76,13 +75,13 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
-	UBehaviorTree* BehaviorTree_Hunting = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
-	UBehaviorTree* BehaviorTree_Aggro = nullptr;
+	UBehaviorTree* BehaviorTree = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
 	bool bIsActive = true;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Stalk Config: General")
+	TSubclassOf<ASpectralEye> SpectralEyeBP;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Eye Stalk Config: Info")
 	float AwarenessMeter = 0.f;

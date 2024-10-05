@@ -8,6 +8,8 @@
 #include "EyeNest.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "EyeStalkVisualizerComponent.h"
+#include "SpectralEye.h"
+#include "Camera/CameraComponent.h"
 
 AEyeStalk::AEyeStalk()
 {
@@ -30,6 +32,11 @@ void AEyeStalk::BeginPlay()
 	{
 		DefaultEyeNest->AttachEyeStalk(this);
 	}
+
+	if (AAIController* AIController = Cast<AAIController>(Controller))
+	{
+		AIController->RunBehaviorTree(BehaviorTree);
+	}
 }
 
 void AEyeStalk::Tick(float DeltaSeconds)
@@ -46,8 +53,8 @@ void AEyeStalk::Tick(float DeltaSeconds)
 			default: break;
 		}
 
-		SelectBehaviorTree();
 		UpdateTreeKeys();
+		CheckAggroStatus();
 	}
 }
 
@@ -96,38 +103,6 @@ void AEyeStalk::IncreaseAwarenessMeter()
 	AwarenessMeter += Amount;
 }
 
-void AEyeStalk::SelectBehaviorTree()
-{
-	if (AAIController* AIController = Cast<AAIController>(Controller))
-	{
-		const UBehaviorTree* CurrentTree = GetCurrentTree(AIController);
-		
-		if (CurrentPhase == ESP_Aggro && CurrentTree != BehaviorTree_Aggro)
-		{
-			AIController->RunBehaviorTree(BehaviorTree_Aggro);
-		}
-		else if (CurrentPhase == ESP_Hunting && CurrentTree != BehaviorTree_Hunting)
-		{
-			AIController->RunBehaviorTree(BehaviorTree_Hunting);
-		}
-	}
-}
-
-UBehaviorTree* AEyeStalk::GetCurrentTree(const AAIController* AIController)
-{
-	UBehaviorTree* CurrentTree = nullptr;
-	
-	if (IsValid(AIController))
-	{
-		if (const UBehaviorTreeComponent* BehaviorComp = Cast<UBehaviorTreeComponent>(AIController->BrainComponent))
-		{
-			CurrentTree = BehaviorComp->GetCurrentTree();
-		}
-	}
-
-	return CurrentTree;
-}
-
 void AEyeStalk::Mode_Surveillance(const float DeltaSeconds)
 {
 	SwingEye(SwingSpeed_Surveillance * DeltaSeconds, SwingAngleMin_Surveillance, SwingAngleMax_Surveillance);
@@ -172,6 +147,51 @@ void AEyeStalk::UpdateTreeKeys()
 			BlackboardComp->SetValueAsFloat("REMTimer_Max", REMTimerMax);
 			BlackboardComp->SetValueAsFloat("SurveillanceExTimer_Interval_Max", SurveillanceExTimer_IntervalMax);
 			BlackboardComp->SetValueAsFloat("SurveillanceExTimer_Total_Max", SurveillanceExTimer_TotalMax);
+		}
+	}
+}
+
+void AEyeStalk::CheckAggroStatus()
+{
+	// We have entered Aggro phase
+	if (CurrentPhase == ESP_Aggro)
+	{
+		bIsActive = false;
+
+		if (AAIController* AIController = Cast<AAIController>(Controller))
+		{
+			AIController->GetBrainComponent()->StopLogic("Entering Aggro Phase");
+		}
+
+		// Spawn spectral eye attached to player
+		if (ALHCharacter* Player = EnemyHelpers::GetPlayerFromWorld(GetWorld()))
+		{
+			if (IsValid(SpectralEyeBP))
+			{
+				if (ASpectralEye* SpawnedSpectralEye = GetWorld()->SpawnActor<ASpectralEye>(SpectralEyeBP, FVector::ZeroVector, FRotator::ZeroRotator))
+				{
+					FVector CameraOffset = FVector::ZeroVector;
+
+					if (UCameraComponent* Camera = Player->GetFirstPersonCameraComponent())
+					{
+						CameraOffset = Camera->GetRelativeLocation();
+						CameraOffset.Z = 0.f;
+					}
+
+					SpawnedSpectralEye->AttachToActor(Player, FAttachmentTransformRules::KeepRelativeTransform);
+					SpawnedSpectralEye->SetActorRelativeLocation((FVector::DownVector * Player->GetSimpleCollisionHalfHeight()) + CameraOffset);
+
+					SpawnedSpectralEye->SetOwningEyeStalk(this);
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "Could not spawn SpectralEyeBP!");
+				}
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "SpectralEyeBP not valid!");
+			}
 		}
 	}
 }
