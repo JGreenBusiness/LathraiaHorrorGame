@@ -42,6 +42,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void Reset() override;
 
 	float GetAwarenessMeterValue() const { return AwarenessMeter; }
 	EEyeStalkMode GetCurrentEyeStalkMode() const { return CurrentMode; }
@@ -61,6 +62,8 @@ public:
 	void IncreaseAwarenessMeter();
 
 protected:
+	void StartBehaviorTree();
+
 	void Mode_Surveillance(const float DeltaSeconds);
 	void Mode_SurveillanceEx(const float DeltaSeconds);
 	void Mode_Rem(const float DeltaSeconds);

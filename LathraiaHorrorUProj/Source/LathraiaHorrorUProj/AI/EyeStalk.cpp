@@ -33,10 +33,7 @@ void AEyeStalk::BeginPlay()
 		DefaultEyeNest->AttachEyeStalk(this);
 	}
 
-	if (AAIController* AIController = Cast<AAIController>(Controller))
-	{
-		AIController->RunBehaviorTree(BehaviorTree);
-	}
+	StartBehaviorTree();
 }
 
 void AEyeStalk::Tick(float DeltaSeconds)
@@ -56,6 +53,17 @@ void AEyeStalk::Tick(float DeltaSeconds)
 		UpdateTreeKeys();
 		CheckAggroStatus();
 	}
+}
+
+void AEyeStalk::Reset()
+{
+	Super::Reset();
+
+	bIsActive = true;
+	CurrentPhase = ESP_Hunting;
+	AwarenessMeter = 0.f;
+
+	StartBehaviorTree();
 }
 
 void AEyeStalk::SetEyeStalkMode(const EEyeStalkMode NewMode)
@@ -101,6 +109,14 @@ void AEyeStalk::IncreaseAwarenessMeter()
 	// Amount += PlayerCharacter->LanternLevel / PlayerCharacter->MaxLanternLevel;
 	
 	AwarenessMeter += Amount;
+}
+
+void AEyeStalk::StartBehaviorTree()
+{
+	if (AAIController* AIController = Cast<AAIController>(Controller))
+	{
+		AIController->RunBehaviorTree(BehaviorTree);
+	}
 }
 
 void AEyeStalk::Mode_Surveillance(const float DeltaSeconds)

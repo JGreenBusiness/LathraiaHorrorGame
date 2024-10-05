@@ -16,10 +16,14 @@ class LATHRAIAHORRORUPROJ_API ASpectralEye : public AActor
 public:
 	ASpectralEye();
 
+	virtual void BeginPlay() override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetOwningEyeStalk(AEyeStalk* OwningEyeStalk) { StalkOwner = OwningEyeStalk; }
+
+	UFUNCTION()
 	void DispellEye();
 	
 protected:
