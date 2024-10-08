@@ -8,6 +8,7 @@
 
 class USkeletalMeshSocket;
 class UPointLightComponent;
+class UInteractionComponent;
 
 UENUM()
 enum class ELanternState : uint8
@@ -65,6 +66,12 @@ public:
 	float RekindlingBurnRate = .5f;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UInteractionComponent* InteractionComponent;
+
+	UFUNCTION()
+	void OnInteraction();
+
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
 	USkeletalMeshComponent* MeshWithLanternSockets;
 	ELanternState CurrentLanternState;

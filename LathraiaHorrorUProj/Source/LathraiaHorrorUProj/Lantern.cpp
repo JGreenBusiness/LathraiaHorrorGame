@@ -6,6 +6,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/PointLightComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "InteractionComponent.h"
 
 ALantern::ALantern()
 {
@@ -20,6 +21,8 @@ ALantern::ALantern()
 	PointLightComponent->SetupAttachment(LanternMeshComponent);
 	CurrentFlameIntensity = PointLightComponent->Intensity;
 	MaxLanternIntensity = CurrentFlameIntensity;
+
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketName)
@@ -30,6 +33,15 @@ void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketN
 void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (InteractionComponent)
+	{
+		InteractionComponent->OnInteracted.AddDynamic(this, &ALantern::OnInteraction);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: Interaction Component is nullptr"));
+	}
 }
 
 void ALantern::ChangeLanternState(ELanternState NewLanternState)
@@ -74,6 +86,11 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 	{
 		return CurrentFlameIntensity * StowedDimedRatio;
 	}
+}
+
+void ALantern::OnInteraction()
+{
+	InteractionComponent->RemoveInteractionComponent();
 }
 
 
