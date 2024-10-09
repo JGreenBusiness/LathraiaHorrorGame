@@ -3,15 +3,12 @@
 
 #include "LHCharacter.h"
 #include "Animation/AnimInstance.h"
-#include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
 #include <EnhancedInputComponent.h>
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Lantern.h"
-#include "Kismet/GameplayStatics.h"
-#include "InteractionComponent.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -32,7 +29,9 @@ void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (bStartWithLantern && LanternClass)
+
+
+	if (LanternClass)
 	{
 		UWorld* World = GetWorld();
 		if (World)
@@ -40,7 +39,12 @@ void ALHCharacter::BeginPlay()
 			// Spawn the Blueprint actor
 			FActorSpawnParameters SpawnParams;
 			Lantern = World->SpawnActor<ALantern>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams);
-			SetUpLantern(Lantern);
+			Lantern->InitializeLantern(GetMesh());
+			Lantern->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
+			Lantern->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
 		}
 	}
 }
@@ -81,35 +85,11 @@ void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
 }
 
 void ALHCharacter::OnInteractAction()
 {
-	TArray<FHitResult> hitResults;
-	if (PerformSphereTrace(hitResults))
-	{
-		for (auto& hit : hitResults)
-		{
-			if (AActor* actor = hit.GetActor())
-			{
-				UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
-				if (interactionComponent)
-				{
-					interactionComponent->Interact();
-
-					if (!Lantern)
-					{
-						if (ALantern* foundLantern = Cast<ALantern>(actor))
-						{
-							Lantern = foundLantern;
-							SetUpLantern(Lantern);
-						}
-					}
-				}
-			}
-		}
-	}
+	OnInteract.Broadcast();
 }
 
 void ALHCharacter::ToggleHeldLantern()
@@ -117,6 +97,10 @@ void ALHCharacter::ToggleHeldLantern()
 	if (Lantern)
 	{
 		Lantern->ToggleLanternHeldState();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
 	}
 }
 
@@ -228,41 +212,5 @@ void ALHCharacter::TurnAtRate(float Rate)
 void ALHCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
-}
-
-void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
-{
-	LanternToSetUp->InitializeLantern(GetMesh());
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
-
-	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
-}
-
-bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
-{
-	FVector CameraLocation;
-	FRotator CameraRotation;
-	Controller->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-	FVector startLocation = CameraLocation;
-	FVector endLocation = CameraLocation + (CameraRotation.Vector() * InteractionRadius);
-
-
-	FCollisionQueryParams CollisionParams;
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		OutHits,
-		startLocation,
-		endLocation,
-		FQuat::Identity,
-		ECC_Visibility,
-		FCollisionShape::MakeSphere(50.0f),
-		CollisionParams
-	);
-
-	return bHit;
 }
 

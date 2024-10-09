@@ -53,10 +53,6 @@ protected:
 
 	void DisplaceLantern() { bLanternRekindleReady = false;}
 
-	void SetUpLantern(ALantern* LanternToSetUp);
-
-	bool PerformSphereTrace(TArray<FHitResult>& OutHits);
-
 protected:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
@@ -71,15 +67,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FOnInteract OnInteract;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Interaction")
-	float InteractionRadius = 500.0;
-
 	UPROPERTY(Category = "LHCharacter Config: Locomotion", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
 
 	// Lantern Related Properties
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
-	bool bStartWithLantern = true;
+
 
 	UPROPERTY(Category = "LHCharacter Config: Lantern", EditDefaultsOnly)
 	TSubclassOf<ALantern> LanternClass;
