@@ -7,9 +7,16 @@ The contributor's of this project is a small but professionally trained group of
 
 [Yash](https://github.com/ButtermyStutter)- Designer
 
+[Tim]()- Designer
+
 [Valentina](https://www.artstation.com/valsequeira) - Artist
 
+[Micki]() - Artist
+
+[Ethan](https://github.com/E-Dawkins) - Programmer
+
 [Justin](https://github.com/JGreenBusiness) - Programmer
+
 
 ## Project information
 
