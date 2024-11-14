@@ -12,6 +12,7 @@
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
 #include "InteractionComponent.h"
+#include "Sound/SoundCue.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -100,6 +101,8 @@ float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	if (Health > 0)
 	{
 		Health -= actualDamage;
+
+		UGameplayStatics::PlaySound2D(this, DamageSoundCue);
 	}
 	else
 	{

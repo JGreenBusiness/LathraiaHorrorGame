@@ -19,6 +19,7 @@ struct FInputActionValue;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ALantern;
+class USoundCue;
 
 UCLASS(config = Game)
 class LATHRAIAHORRORUPROJ_API ALHCharacter : public ACharacter
@@ -84,6 +85,9 @@ public:
 
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
+
+	UPROPERTY(Category = "LHCharacter Config", EditAnywhere)
+	USoundCue* DamageSoundCue = nullptr;
 
 	// Lantern Related Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
