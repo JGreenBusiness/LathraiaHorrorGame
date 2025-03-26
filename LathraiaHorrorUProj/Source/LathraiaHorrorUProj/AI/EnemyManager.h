@@ -27,6 +27,8 @@ public:
 	*/
 	AEyeNest* GetClosestEyeNest(FVector Point, TArray<AEyeNest*> NestsToIgnore = {}, bool bIncludeOccupied = false);
 
+	int32 GetEyeNestCount() { return EyeNests.Num(); }
+
 protected:
 	UPROPERTY()
 	TArray<AEyeNest*> EyeNests;
