@@ -196,27 +196,14 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
 {
-	if (Lantern)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_InUse);
-	}
 }
 
 void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionValue)
 {
-	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
-		bLanternRekindleReady = true;
-	}
 }
 
 void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActionValue)
 {
-	if (bLanternRekindleReady && Lantern)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_Rekindling);
-	}
 }
 
 
@@ -234,11 +221,7 @@ void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 {
 	LanternToSetUp->InitializeLantern(GetMesh());
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
-
 	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
 }
 
