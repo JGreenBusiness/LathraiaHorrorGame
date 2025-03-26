@@ -16,9 +16,6 @@ class LATHRAIAHORRORUPROJ_API AEyeNest : public AActor
 public:	
 	AEyeNest();
 
-protected:
-	virtual void BeginPlay() override;
-
 public:
 	void AttachEyeStalk(AEyeStalk* EyeStalk);
 

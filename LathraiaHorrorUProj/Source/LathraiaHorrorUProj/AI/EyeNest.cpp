@@ -3,7 +3,6 @@
 
 #include "EyeNest.h"
 
-#include "EnemyManager.h"
 #include "EyeStalk.h"
 
 AEyeNest::AEyeNest()
@@ -13,16 +12,6 @@ AEyeNest::AEyeNest()
 
     EyeStalkLocation = CreateDefaultSubobject<USceneComponent>("Eye Stalk Location");
     EyeStalkLocation->SetupAttachment(RootComponent);
-}
-
-void AEyeNest::BeginPlay()
-{
-    Super::BeginPlay();
-
-    if (UEnemyManager* EManager = GetWorld()->GetSubsystem<UEnemyManager>())
-    {
-        EManager->RegisterEyeNest(this);
-    }
 }
 
 void AEyeNest::AttachEyeStalk(AEyeStalk* EyeStalk)

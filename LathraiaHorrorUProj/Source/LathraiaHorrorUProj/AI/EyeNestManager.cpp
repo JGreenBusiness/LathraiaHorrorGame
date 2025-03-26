@@ -2,22 +2,28 @@
 
 
 #include "AI/EyeNestManager.h"
-#include "AI/EnemyManager.h"
+#include "Kismet/GameplayStatics.h"
 
 AEyeNestManager::AEyeNestManager()
 {
     PrimaryActorTick.bCanEverTick = true;
 }
 
-void AEyeNestManager::Tick(float DeltaSeconds)
+void AEyeNestManager::BeginPlay()
 {
-    Super::Tick(DeltaSeconds);
+    Super::BeginPlay();
 
-    if (UEnemyManager* Manager = GetWorld()->GetSubsystem<UEnemyManager>())
-    {
-        if (Manager->GetEyeNestCount() != EyeNests.Num() && GEngine)
+    GetWorld()->GetTimerManager().SetTimerForNextTick([&]()
         {
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "Eye Nest Manager is missing some Eye Nest's!");
-        }
-    }
+            TArray<AActor*> EyeNestsInLevel = {};
+            UGameplayStatics::GetAllActorsOfClass(this, AEyeNest::StaticClass(), EyeNestsInLevel);
+
+            if (GEngine && EyeNestsInLevel.Num() != EyeNests.Num())
+            {
+                // really drill in that we are missing some EyeNest's
+                GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "Eye Nest Manager is missing some Eye Nest's!");
+                GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "Eye Nest Manager is missing some Eye Nest's!");
+                GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "Eye Nest Manager is missing some Eye Nest's!");
+            }
+        });
 }

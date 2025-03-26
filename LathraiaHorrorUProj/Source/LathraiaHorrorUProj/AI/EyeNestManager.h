@@ -17,8 +17,7 @@ class LATHRAIAHORRORUPROJ_API AEyeNestManager : public AActor
 public:	
 	AEyeNestManager();
 
-protected:
-	void Tick(float DeltaSeconds) override;
+	void BeginPlay() override;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
