@@ -44,6 +44,15 @@ void AEyeNestManager::SpawnEyeStalkAtClosestNest(FVector Point)
         }
     }
 
+    // find the range of the new eye stalk [Index - 1, Index + 2]
+    int32 Index = EyeNests.Find(ClosestNest);
+
+    TArray<AEyeNest*> FoundRange;
+    if (EyeNests.IsValidIndex(Index - 1)) FoundRange.Add(EyeNests[Index - 1]);
+    if (EyeNests.IsValidIndex(Index)) FoundRange.Add(EyeNests[Index]);
+    if (EyeNests.IsValidIndex(Index + 1)) FoundRange.Add(EyeNests[Index + 1]);
+    if (EyeNests.IsValidIndex(Index + 2)) FoundRange.Add(EyeNests[Index + 2]);
+
     ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
-    EyeStalk->AttachToEyeNest(ClosestNest);
+    EyeStalk->AttachToEyeNest(ClosestNest, FoundRange);
 }

@@ -17,13 +17,24 @@ class LATHRAIAHORRORUPROJ_API ANewEyeStalk : public AActor
 public:
 	ANewEyeStalk();
 
-	void AttachToEyeNest(AEyeNest* Nest);
+protected:
+	void BeginPlay() override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	void AttachToEyeNest(AEyeNest* InitialNest, TArray<AEyeNest*> FullRange);
+
+private:
+	AEyeNest* GetClosestNestToPlayer();
 
 private:
 	UPROPERTY()
-	AEyeNest* DeterminedNest = nullptr;
+	AEyeNest* CurrentNest = nullptr;
+
+	UPROPERTY()
+	TArray<AEyeNest*> Range;
+
+	UPROPERTY()
+	AActor* PlayerActor = nullptr;
 
 };
