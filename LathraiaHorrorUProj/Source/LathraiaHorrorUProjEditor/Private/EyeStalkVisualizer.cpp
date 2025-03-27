@@ -3,13 +3,13 @@
 
 #include "EyeStalkVisualizer.h"
 
-#include "EyeStalk.h"
+#include "NewEyeStalk.h"
 #include "EyeNest.h"
 
 void FEyeStalkVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View,
                                             FPrimitiveDrawInterface* PDI)
 {
-	const AEyeStalk* EyeStalk = Cast<AEyeStalk>(Component->GetOwner());
+	const ANewEyeStalk* EyeStalk = Cast<ANewEyeStalk>(Component->GetOwner());
 	if (!IsValid(EyeStalk))
 	{
 		return;
@@ -27,25 +27,4 @@ void FEyeStalkVisualizer::DrawVisualization(const UActorComponent* Component, co
 		FLinearColor(1, 0, 0, 0.5f),
 		SDPG_World
 	);
-
-	// Eye nest
-	if (AEyeNest* CurrentNest = EyeStalk->GetDefaultEyeNest())
-	{
-		FVector ToNest = (CurrentNest->GetActorLocation() - EyeStalk->GetActorLocation());
-
-		FMatrix ArrowMatrix = FScaleRotationTranslationMatrix(
-			FVector::OneVector,
-			ToNest.Rotation(),
-			EyeStalk->GetActorLocation()
-		);
-
-		DrawDirectionalArrow(
-			PDI,
-			ArrowMatrix,
-			FLinearColor::Blue,
-			ToNest.Length(),
-			20.f,
-			SDPG_Foreground
-		);
-	}
 }

@@ -24,8 +24,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void AttachToEyeNest(AEyeNest* InitialNest, TArray<AEyeNest*> FullRange);
 
+	float GetViewConeLength() const { return ViewCone_Length; }
+	float GetViewConeHalfAngle() const { return ViewCone_HalfAngle; }
+
 private:
 	AEyeNest* GetClosestNestToPlayer();
+	bool IsPlayerInViewCone();
 
 private:
 	UPROPERTY()
@@ -36,5 +40,11 @@ private:
 
 	UPROPERTY()
 	AActor* PlayerActor = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 0, ClampMax = 90)) // In degrees
+		float ViewCone_HalfAngle = 30.f;
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 1)) // In cm
+		float ViewCone_Length = 1000.f;
 
 };

@@ -2,6 +2,7 @@
 
 
 #include "AI/NewEyeStalk.h"
+#include "MathHelpers.h"
 
 ANewEyeStalk::ANewEyeStalk()
 {
@@ -25,6 +26,11 @@ void ANewEyeStalk::Tick(float DeltaTime)
     {
         SetActorTransform(ClosestNest->GetEyeStalkLocation()->GetComponentTransform());
         CurrentNest = ClosestNest;
+    }
+
+    if (IsPlayerInViewCone()) 
+    {
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, "Player in viewcone!");
     }
 }
 
@@ -53,5 +59,47 @@ AEyeNest* ANewEyeStalk::GetClosestNestToPlayer()
     }
 
     return ClosestNest;
+}
+
+bool ANewEyeStalk::IsPlayerInViewCone()
+{
+	// Trace to player
+	// -> Blocked = return false
+	// -> Not Blocked = Check Angle
+
+	// Angle to player
+	// -> Within threshold = return true
+	// -> Not within threshold = return false
+
+	if (PlayerActor)
+	{
+		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(PlayerActor);
+		Params.AddIgnoredActor(this);
+		Params.AddIgnoredActor(CurrentNest);
+
+		GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			GetActorLocation(),
+			PlayerActor->GetActorLocation(),
+			ECC_Visibility,
+			Params);
+
+		const float DistToPlayer = FVector::Distance(GetActorLocation(), PlayerActor->GetActorLocation());
+
+		if (!HitResult.bBlockingHit && DistToPlayer <= ViewCone_Length)
+		{
+			const FVector ToPlayer = (PlayerActor->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			const float Angle = MathHelpers::AngleBetweenVectors(GetActorForwardVector(), ToPlayer);
+
+			if (Angle <= ViewCone_HalfAngle)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
