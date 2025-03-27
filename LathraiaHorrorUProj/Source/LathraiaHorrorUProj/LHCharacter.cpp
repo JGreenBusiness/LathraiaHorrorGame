@@ -66,14 +66,6 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
-
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
-
-		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPlaceLanternAction);
-		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Completed, this, &ALHCharacter::DisplaceLantern);
-		
-		Input->BindAction(RekindleLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputRekindleLanternAction);
 	}
 }
 
@@ -193,19 +185,6 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 {
 	ToggleHeldLantern();
 }
-
-void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
-{
-}
-
-void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionValue)
-{
-}
-
-void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActionValue)
-{
-}
-
 
 void ALHCharacter::TurnAtRate(float Rate)
 {

@@ -87,15 +87,7 @@ public:
 	FName HeldLanternSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
-	FName InUseLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
 	FName StowedLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern Sockets")
-	FName RekindleLanternSocketName;
-
-
 
 	// Enhanced Input 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
@@ -126,15 +118,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* PrimaryInputAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
-	UInputAction* SecondaryInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
-	UInputAction* PlaceLanternInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
-	UInputAction* RekindleLanternInputAction;
-
 public:
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
@@ -158,9 +141,4 @@ public:
 
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
 
-	void InputSecondaryAction(const FInputActionValue& InputActionValue);
-
-	void InputPlaceLanternAction(const FInputActionValue& InputActionValue);
-
-	void InputRekindleLanternAction(const FInputActionValue& InputActionValue);
 };
