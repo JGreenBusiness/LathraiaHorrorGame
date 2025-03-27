@@ -21,6 +21,8 @@ public:
 
 	bool IsOccupied() const { return bIsOccupied; }
 
+	const USceneComponent* GetEyeStalkLocation() const { return EyeStalkLocation; }
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* RootMesh = nullptr;

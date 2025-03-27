@@ -27,3 +27,23 @@ void AEyeNestManager::BeginPlay()
             }
         });
 }
+
+void AEyeNestManager::SpawnEyeStalkAtClosestNest(FVector Point)
+{
+    AEyeNest* ClosestNest = nullptr;
+    float ClosestDist = FLT_MAX;
+
+    for (AEyeNest* Nest : EyeNests)
+    {
+        float CurrentDist = FVector::Dist(Point, Nest->GetActorLocation());
+
+        if (ClosestNest == nullptr || CurrentDist < ClosestDist) 
+        {
+            ClosestNest = Nest;
+            ClosestDist = CurrentDist;
+        }
+    }
+
+    ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
+    EyeStalk->AttachToEyeNest(ClosestNest);
+}

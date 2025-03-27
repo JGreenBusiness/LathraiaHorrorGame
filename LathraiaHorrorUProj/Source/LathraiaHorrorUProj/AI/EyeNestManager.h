@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Containers/Array.h"
 #include "EyeNest.h"
+#include "NewEyeStalk.h"
 
 #include "EyeNestManager.generated.h"
 
@@ -19,8 +20,14 @@ public:
 
 	void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnEyeStalkAtClosestNest(FVector Point);
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
 	TArray<AEyeNest*> EyeNests = {};
+
+	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
+	TSubclassOf<ANewEyeStalk> EyeStalkToSpawn = nullptr;
 
 };
