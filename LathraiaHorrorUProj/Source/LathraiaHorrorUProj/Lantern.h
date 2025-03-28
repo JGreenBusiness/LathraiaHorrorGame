@@ -8,7 +8,6 @@
 
 class USkeletalMeshSocket;
 class UPointLightComponent;
-class UInteractionComponent;
 
 UENUM()
 enum class ELanternState : uint8
@@ -65,13 +64,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float RekindlingBurnRate = .5f;
 
+
+	// Socket Logic
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
+	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
+
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UInteractionComponent* InteractionComponent;
-
-	UFUNCTION()
-	void OnInteraction();
-
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
 	USkeletalMeshComponent* MeshWithLanternSockets;
 	ELanternState CurrentLanternState;

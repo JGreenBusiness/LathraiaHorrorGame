@@ -6,7 +6,6 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/PointLightComponent.h"
 #include "Math/UnrealMathUtility.h"
-#include "InteractionComponent.h"
 
 ALantern::ALantern()
 {
@@ -21,8 +20,6 @@ ALantern::ALantern()
 	PointLightComponent->SetupAttachment(LanternMeshComponent);
 	CurrentFlameIntensity = PointLightComponent->Intensity;
 	MaxLanternIntensity = CurrentFlameIntensity;
-
-	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void ALantern::AddLanternSocket(ELanternState LanternState, FName LanternSocketName)
@@ -34,13 +31,9 @@ void ALantern::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (InteractionComponent)
+	if (!IsValid(MeshWithLanternSockets))
 	{
-		InteractionComponent->OnInteracted.AddDynamic(this, &ALantern::OnInteraction);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: Interaction Component is nullptr"));
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: InitialiseLantern not called"));
 	}
 }
 
@@ -86,11 +79,6 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 	{
 		return CurrentFlameIntensity * StowedDimedRatio;
 	}
-}
-
-void ALantern::OnInteraction()
-{
-	InteractionComponent->RemoveInteractionComponent();
 }
 
 
@@ -158,7 +146,7 @@ void ALantern::AttatchLanternToActiveSocket()
 {
 	if (MeshWithLanternSockets)
 	{
-		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetActiveLanternSocket()->SocketName);
+		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, GetActiveLanternSocket()->SocketName);
 	}
 	else
 	{
