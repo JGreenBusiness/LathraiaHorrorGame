@@ -21,12 +21,15 @@ void ANewEyeStalk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-    AEyeNest* ClosestNest = GetClosestNestToPlayer();
-    if (ClosestNest != CurrentNest) 
-    {
-        SetActorTransform(ClosestNest->GetEyeStalkLocation()->GetComponentTransform());
-        CurrentNest = ClosestNest;
-    }
+	if (Type == EEyeStalkType::DOCILE)
+	{
+		AEyeNest* ClosestNest = GetClosestNestToPlayer();
+		if (ClosestNest != CurrentNest)
+		{
+			SetActorTransform(ClosestNest->GetEyeStalkLocation()->GetComponentTransform());
+			CurrentNest = ClosestNest;
+		}
+	}
 
     if (IsPlayerInViewCone()) 
     {

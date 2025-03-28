@@ -55,4 +55,31 @@ void AEyeNestManager::SpawnEyeStalkAtClosestNest(FVector Point)
 
     ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
     EyeStalk->AttachToEyeNest(ClosestNest, FoundRange);
+    EyeStalk->SetEyeStalkType(EEyeStalkType::DOCILE);
+}
+
+void AEyeNestManager::SpawnEyeStalksAroundPoint(FVector Point, float Range)
+{
+    for (AEyeNest* Nest : EyeNests) 
+    {
+        float CurrentDist = FVector::Dist(Point, Nest->GetActorLocation());
+        if (CurrentDist <= Range) 
+        {
+            ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
+            EyeStalk->AttachToEyeNest(Nest);
+            EyeStalk->SetEyeStalkType(EEyeStalkType::SWIFT);
+        }
+    }
+}
+
+void AEyeNestManager::ClearEyeStalks()
+{
+    TArray<AActor*> EyeStalksInLevel;
+    UGameplayStatics::GetAllActorsOfClass(this, ANewEyeStalk::StaticClass(), EyeStalksInLevel);
+
+    for (AActor* EyeStalkActor : EyeStalksInLevel)
+    {
+        ANewEyeStalk* EyeStalkPtr = Cast<ANewEyeStalk>(EyeStalkActor);
+        EyeStalkPtr->Destroy();
+    }
 }

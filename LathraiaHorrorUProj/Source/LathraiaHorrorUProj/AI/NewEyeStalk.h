@@ -9,6 +9,13 @@
 
 class AEyeNest;
 
+UENUM()
+enum EEyeStalkType 
+{
+	DOCILE = 0,
+	SWIFT
+};
+
 UCLASS()
 class LATHRAIAHORRORUPROJ_API ANewEyeStalk : public AActor
 {
@@ -22,10 +29,12 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	void AttachToEyeNest(AEyeNest* InitialNest, TArray<AEyeNest*> FullRange);
+	void AttachToEyeNest(AEyeNest* InitialNest, TArray<AEyeNest*> FullRange = {});
 
 	float GetViewConeLength() const { return ViewCone_Length; }
 	float GetViewConeHalfAngle() const { return ViewCone_HalfAngle; }
+
+	void SetEyeStalkType(EEyeStalkType NewType) { Type = NewType; }
 
 private:
 	AEyeNest* GetClosestNestToPlayer();
@@ -46,5 +55,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 1)) // In cm
 		float ViewCone_Length = 1000.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	TEnumAsByte<EEyeStalkType> Type;
 
 };

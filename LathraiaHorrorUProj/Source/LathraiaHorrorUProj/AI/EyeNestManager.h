@@ -23,6 +23,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnEyeStalkAtClosestNest(FVector Point);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnEyeStalksAroundPoint(FVector Point, float Range);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearEyeStalks();
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
 	TArray<AEyeNest*> EyeNests = {};
