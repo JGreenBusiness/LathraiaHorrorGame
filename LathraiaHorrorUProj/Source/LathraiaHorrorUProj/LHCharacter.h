@@ -19,6 +19,7 @@ struct FInputActionValue;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ALantern;
+class USoundCue;
 
 UCLASS(config = Game)
 class LATHRAIAHORRORUPROJ_API ALHCharacter : public ACharacter
@@ -42,6 +43,8 @@ private:
 	float DefaultMaxWalkSpeed;
 
 protected:
+	
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	void OnInteractAction();
 
@@ -57,6 +60,7 @@ protected:
 
 	bool PerformSphereTrace(TArray<FHitResult>& OutHits);
 
+
 protected:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
@@ -64,7 +68,12 @@ protected:
 
 	bool bLanternRekindleReady = false;
 
+	int Health;
+
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config")
+	int MaxHealth = 100;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float TurnRateGamepad;
 
@@ -74,8 +83,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Interaction")
 	float InteractionRadius = 500.0;
 
-	UPROPERTY(Category = "LHCharacter Config: Locomotion", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
+	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
+
+	UPROPERTY(Category = "LHCharacter Config", EditAnywhere)
+	USoundCue* DamageSoundCue = nullptr;
 
 	// Lantern Related Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
