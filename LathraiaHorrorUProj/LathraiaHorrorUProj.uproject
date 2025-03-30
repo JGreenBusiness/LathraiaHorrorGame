@@ -10,14 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"EnhancedInput",
-				"AIModule"
+				"EnhancedInput"
 			]
-		},
-		{
-			"Name": "LathraiaHorrorUProjEditor",
-			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [

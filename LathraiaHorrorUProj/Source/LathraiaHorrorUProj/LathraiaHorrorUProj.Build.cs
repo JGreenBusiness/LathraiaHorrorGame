@@ -14,17 +14,10 @@ public class LathraiaHorrorUProj : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"AIModule"
+			"GameplayTags"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
-		
-		PublicIncludePaths.AddRange(new string[] {
-			"LathraiaHorrorUProj",
-			"LathraiaHorrorUProj/AI",
-			"LathraiaHorrorUProj/AI/Tasks",
-			"LathraiaHorrorUProj/AI/Decorators"
-		});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

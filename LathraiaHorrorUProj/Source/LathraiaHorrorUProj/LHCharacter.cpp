@@ -12,7 +12,6 @@
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
 #include "InteractionComponent.h"
-#include "Sound/SoundCue.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -27,14 +26,11 @@ ALHCharacter::ALHCharacter()
 
 	CharacterMovementComponent = GetCharacterMovement();
 	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
-
 }
 
 void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Health = MaxHealth;
 
 	if (bStartWithLantern && LanternClass)
 	{
@@ -47,7 +43,6 @@ void ALHCharacter::BeginPlay()
 			SetUpLantern(Lantern);
 		}
 	}
-
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -78,30 +73,7 @@ void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Health = %i"), Health));
-	}
 
-
-}
-
-float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (Health > 0)
-	{
-		Health -= actualDamage;
-
-		UGameplayStatics::PlaySound2D(this, DamageSoundCue);
-	}
-	else
-	{
-		UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName(), false);
-	}
-
-	return actualDamage;
 }
 
 void ALHCharacter::OnInteractAction()
