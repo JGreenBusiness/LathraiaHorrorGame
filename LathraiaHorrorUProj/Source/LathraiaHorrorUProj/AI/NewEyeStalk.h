@@ -26,6 +26,7 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -52,6 +53,9 @@ private:
 	UPROPERTY()
 	AActor* PlayerActor = nullptr;
 
+	UPROPERTY()
+	class UPanicManagerComponent* PanicManagerComp = nullptr;
+
 	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 0, ClampMax = 90)) // In degrees
 		float ViewCone_HalfAngle = 30.f;
 
@@ -61,4 +65,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
 	TEnumAsByte<EEyeStalkType> Type;
 
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 0))
+	float PanicIncrease = 2.5f;
+
+	float PreviousPanicRate = 0.f;
+	bool bPreviousPlayerSeen = false;
 };
