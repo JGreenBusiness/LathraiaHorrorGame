@@ -76,6 +76,22 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
+void ALHCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (PanicManagerComponent)
+	{
+
+		PanicManagerComponent->OnPanicTierOne.AddDynamic(this, &ALHCharacter::OnPanicTierOne);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp: Panic Manager Component is nullptr"));
+	}
+}
+
 void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -254,5 +270,10 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 	);
 
 	return bHit;
+}
+
+void ALHCharacter::OnPanicTierOne()
+{
+	UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp : Panic Tier One Reached"));
 }
 

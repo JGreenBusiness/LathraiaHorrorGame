@@ -6,9 +6,13 @@
 #include "Components/ActorComponent.h"
 #include "PanicManagerComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPanicTierDelegate);
+
+
 UENUM(BlueprintType)
 enum class EPanicTier : uint8
 {
+	EPT_Tier_0 UMETA(DisplayName = "Panic Tier 0"),
 	EPT_Tier_1 UMETA(DisplayName = "Panic Tier 1"),
 	EPT_Tier_2 UMETA(DisplayName = "Panic Tier 2"),
 	EPT_Tier_3 UMETA(DisplayName = "Panic Tier 3"),
@@ -40,6 +44,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void LerpPanicMeter(float DeltaTime);
+	void UpdateCurrentPanicTier();
+	void BroadcastCurrentPanicTierDelagate();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float PanicMeter = 0.0f;
@@ -50,7 +56,32 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool Panicking = true;
 
+	TArray<float> PanicTierThresholdArray;
+	int CurrentPanicTier = 0;
+
 public:	
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierZero;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierOne;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierTwo;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierThree;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierFour;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnPanicTierFive;
+
+
+public:
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SetPanicking(bool IsPanicking) { Panicking = IsPanicking; }
