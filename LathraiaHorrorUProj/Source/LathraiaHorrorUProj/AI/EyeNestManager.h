@@ -44,10 +44,26 @@ public:
 	void ClearEyeStalks();
 
 private:
+	UFUNCTION()
+	void OnEnterTier2();
+
+	UFUNCTION()
+	void OnEnterTier3();
+
+	UFUNCTION()
+	void OnEnterTier4();
+
+private:
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
 	TMap<AEyeNest*, FViewConeVariables> EyeNests = {};
 
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
 	TSubclassOf<ANewEyeStalk> EyeStalkToSpawn = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
+	float SwiftSpawnRange = 1000.f; // in cm
+
+	UPROPERTY()
+	class ALHCharacter* PlayerPtr = nullptr;
 
 };
