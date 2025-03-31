@@ -63,7 +63,9 @@ protected:
 
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UPanicManagerComponent* PanicManagerComponent;
+
 	UCharacterMovementComponent* CharacterMovementComponent;
 	ALantern* Lantern = nullptr;
 

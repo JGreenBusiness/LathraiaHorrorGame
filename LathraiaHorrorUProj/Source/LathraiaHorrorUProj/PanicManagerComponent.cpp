@@ -18,15 +18,15 @@ void UPanicManagerComponent::BeginPlay()
 	
 }
 
-float UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
+void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 {
 	if (Panicking)
 	{
-		return PanicMeter = FMath::Lerp(PanicMeter,MaxPanic,PositivePanicRate);
+		PanicMeter = FMath::Lerp(PanicMeter,MaxPanic,PositivePanicRate);
 	}
 	else
 	{
-		return PanicMeter = FMath::Lerp(PanicMeter, 0, NegativePanicRate);
+		PanicMeter = FMath::Lerp(PanicMeter, 0, NegativePanicRate);
 	}
 }
 
@@ -35,6 +35,7 @@ void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	LerpPanicMeter(DeltaTime);
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicMeter));

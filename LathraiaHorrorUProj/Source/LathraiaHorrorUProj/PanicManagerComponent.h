@@ -18,7 +18,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	float LerpPanicMeter(float DeltaTime);
+	void LerpPanicMeter(float DeltaTime);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float PanicMeter = 0.0f;

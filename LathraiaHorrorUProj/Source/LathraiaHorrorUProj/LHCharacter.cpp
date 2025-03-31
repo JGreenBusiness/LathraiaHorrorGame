@@ -84,8 +84,6 @@ void ALHCharacter::Tick(float DeltaTime)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Health = %i"), Health));
 	}
-
-
 }
 
 float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
