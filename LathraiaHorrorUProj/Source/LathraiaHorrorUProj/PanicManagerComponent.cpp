@@ -5,9 +5,17 @@
 #include "Math/UnrealMathUtility.h"
 
 
+
+
 UPanicManagerComponent::UPanicManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	PanicTierData.Add(FPanicTierData{ EPanicTier::EPT_Tier_1, 10.0f });
+	PanicTierData.Add(FPanicTierData{ EPanicTier::EPT_Tier_2, 25.0f });
+	PanicTierData.Add(FPanicTierData{ EPanicTier::EPT_Tier_3, 40.0f });
+	PanicTierData.Add(FPanicTierData{ EPanicTier::EPT_Tier_4, 80.0f });
+	PanicTierData.Add(FPanicTierData{ EPanicTier::EPT_Tier_5, 100.0f });
 
 }
 
@@ -22,11 +30,11 @@ void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 {
 	if (Panicking)
 	{
-		PanicMeter = FMath::Lerp(PanicMeter,MaxPanic,PositivePanicRate);
+		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, PositivePanicRate);
 	}
 	else
 	{
-		PanicMeter = FMath::Lerp(PanicMeter, 0, NegativePanicRate);
+		PanicMeter = FMath::FInterpConstantTo(PanicMeter, 0, DeltaTime, NegativePanicRate);
 	}
 }
 
