@@ -71,14 +71,6 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
-
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
-
-		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPlaceLanternAction);
-		Input->BindAction(PlaceLanternInputAction, ETriggerEvent::Completed, this, &ALHCharacter::DisplaceLantern);
-		
-		Input->BindAction(RekindleLanternInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputRekindleLanternAction);
 	}
 }
 
@@ -222,32 +214,6 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 	ToggleHeldLantern();
 }
 
-void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
-{
-	if (Lantern)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_InUse);
-	}
-}
-
-void ALHCharacter::InputPlaceLanternAction(const FInputActionValue& InputActionValue)
-{
-	if (Lantern && Lantern->GetActiveLanternState() != ELanternState::ELS_RekindleReady)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
-		bLanternRekindleReady = true;
-	}
-}
-
-void ALHCharacter::InputRekindleLanternAction(const FInputActionValue& InputActionValue)
-{
-	if (bLanternRekindleReady && Lantern)
-	{
-		Lantern->SetLanternState(ELanternState::ELS_Rekindling);
-	}
-}
-
-
 void ALHCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
@@ -262,11 +228,7 @@ void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 {
 	LanternToSetUp->InitializeLantern(GetMesh());
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, InUseLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_RekindleReady, RekindleLanternSocketName);
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, RekindleLanternSocketName);
-
 	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
 }
 
