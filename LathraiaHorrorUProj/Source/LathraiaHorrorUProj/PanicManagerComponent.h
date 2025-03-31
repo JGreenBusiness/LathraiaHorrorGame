@@ -45,7 +45,6 @@ protected:
 
 	void LerpPanicMeter(float DeltaTime);
 	void UpdateCurrentPanicTier();
-	void BroadcastCurrentPanicTierDelagate();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float PanicMeter = 0.0f;
