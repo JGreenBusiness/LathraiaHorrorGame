@@ -20,6 +20,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ALantern;
 class USoundCue;
+class UPanicManagerComponent;
 
 UCLASS(config = Game)
 class LATHRAIAHORRORUPROJ_API ALHCharacter : public ACharacter
@@ -38,6 +39,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	virtual void PostInitializeComponents() override;
 
 private:
 	float DefaultMaxWalkSpeed;
@@ -60,8 +63,10 @@ protected:
 
 	bool PerformSphereTrace(TArray<FHitResult>& OutHits);
 
-
+	
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPanicManagerComponent* PanicManagerComponent;
 
 	UCharacterMovementComponent* CharacterMovementComponent;
 	ALantern* Lantern = nullptr;
@@ -71,6 +76,12 @@ protected:
 	int Health;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
+	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
+	
+	UFUNCTION()
+	void OnPanicTierOne();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config")
 	int MaxHealth = 100;
 
