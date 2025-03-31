@@ -12,6 +12,7 @@
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
 #include "InteractionComponent.h"
+#include "PanicManagerComponent.h"
 #include "Sound/SoundCue.h"
 
 ALHCharacter::ALHCharacter()
@@ -28,6 +29,7 @@ ALHCharacter::ALHCharacter()
 	CharacterMovementComponent = GetCharacterMovement();
 	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 
+	PanicManagerComponent = CreateDefaultSubobject<UPanicManagerComponent>(TEXT("PanicManager"));
 }
 
 void ALHCharacter::BeginPlay()

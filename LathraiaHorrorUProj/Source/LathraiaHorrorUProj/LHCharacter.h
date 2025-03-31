@@ -20,6 +20,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ALantern;
 class USoundCue;
+class UPanicManagerComponent;
 
 UCLASS(config = Game)
 class LATHRAIAHORRORUPROJ_API ALHCharacter : public ACharacter
@@ -62,7 +63,7 @@ protected:
 
 
 protected:
-
+	UPanicManagerComponent* PanicManagerComponent;
 	UCharacterMovementComponent* CharacterMovementComponent;
 	ALantern* Lantern = nullptr;
 
