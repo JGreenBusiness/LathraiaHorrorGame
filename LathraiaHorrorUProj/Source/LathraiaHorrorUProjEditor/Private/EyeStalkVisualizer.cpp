@@ -9,6 +9,11 @@
 void FEyeStalkVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View,
                                             FPrimitiveDrawInterface* PDI)
 {
+	if (!IsValid(Component))
+	{
+		return;
+	}
+
 	const ANewEyeStalk* EyeStalk = Cast<ANewEyeStalk>(Component->GetOwner());
 	if (!IsValid(EyeStalk))
 	{
