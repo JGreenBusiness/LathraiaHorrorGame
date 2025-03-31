@@ -86,7 +86,7 @@ public:
 	void AttatchLanternToActiveSocket();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern Sockets")
-	void OnLanternNewLanternState();
+	void OnLanternNewLanternState(); // Lantern positional lerping occurs in BP_Lantern Event Graph
 
 	void ToggleLanternHeldState();
 
