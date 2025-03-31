@@ -32,42 +32,58 @@ void AEyeNestManager::SpawnEyeStalkAtClosestNest(FVector Point)
 {
     AEyeNest* ClosestNest = nullptr;
     float ClosestDist = FLT_MAX;
+    int32 Index = -1;
 
-    for (AEyeNest* Nest : EyeNests)
+    TSet<AEyeNest*> Keys = {};
+    EyeNests.GetKeys(Keys);
+
+    TArray<AEyeNest*> KeysArray = Keys.Array();
+
+    for (int IterIndex = 0; IterIndex < KeysArray.Num(); IterIndex++)
     {
+        AEyeNest* Nest = KeysArray[IterIndex];
         float CurrentDist = FVector::Dist(Point, Nest->GetActorLocation());
 
         if (ClosestNest == nullptr || CurrentDist < ClosestDist) 
         {
             ClosestNest = Nest;
             ClosestDist = CurrentDist;
+            Index = IterIndex;
         }
     }
 
-    // find the range of the new eye stalk [Index - 1, Index + 2]
-    int32 Index = EyeNests.Find(ClosestNest);
+    if (!IsValid(ClosestNest))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "Failed to find nest near point: " + Point.ToString());
+        return;
+    }
 
+    // find the range of the new eye stalk [Index - 1, Index + 2]
     TArray<AEyeNest*> FoundRange;
-    if (EyeNests.IsValidIndex(Index - 1)) FoundRange.Add(EyeNests[Index - 1]);
-    if (EyeNests.IsValidIndex(Index)) FoundRange.Add(EyeNests[Index]);
-    if (EyeNests.IsValidIndex(Index + 1)) FoundRange.Add(EyeNests[Index + 1]);
-    if (EyeNests.IsValidIndex(Index + 2)) FoundRange.Add(EyeNests[Index + 2]);
+    if (KeysArray.IsValidIndex(Index - 1)) FoundRange.Add(KeysArray[Index - 1]);
+    if (KeysArray.IsValidIndex(Index)) FoundRange.Add(KeysArray[Index]);
+    if (KeysArray.IsValidIndex(Index + 1)) FoundRange.Add(KeysArray[Index + 1]);
+    if (KeysArray.IsValidIndex(Index + 2)) FoundRange.Add(KeysArray[Index + 2]);
 
     ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
     EyeStalk->AttachToEyeNest(ClosestNest, FoundRange);
     EyeStalk->SetEyeStalkType(EEyeStalkType::DOCILE);
+    EyeStalk->SetViewConeHalfAngle(EyeNests[ClosestNest].ViewHalfAngle);
+    EyeStalk->SetViewConeLength(EyeNests[ClosestNest].ViewDistance);
 }
 
 void AEyeNestManager::SpawnEyeStalksAroundPoint(FVector Point, float Range)
 {
-    for (AEyeNest* Nest : EyeNests) 
+    for (auto& Pair : EyeNests) 
     {
-        float CurrentDist = FVector::Dist(Point, Nest->GetActorLocation());
+        float CurrentDist = FVector::Dist(Point, Pair.Key->GetActorLocation());
         if (CurrentDist <= Range) 
         {
             ANewEyeStalk* EyeStalk = GetWorld()->SpawnActor<ANewEyeStalk>(EyeStalkToSpawn);
-            EyeStalk->AttachToEyeNest(Nest);
+            EyeStalk->AttachToEyeNest(Pair.Key);
             EyeStalk->SetEyeStalkType(EEyeStalkType::SWIFT);
+            EyeStalk->SetViewConeHalfAngle(EyeNests[Pair.Key].ViewHalfAngle);
+            EyeStalk->SetViewConeLength(EyeNests[Pair.Key].ViewDistance);
         }
     }
 }

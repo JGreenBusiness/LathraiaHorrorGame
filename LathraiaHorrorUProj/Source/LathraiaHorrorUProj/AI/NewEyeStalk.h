@@ -35,6 +35,8 @@ public:
 	float GetViewConeHalfAngle() const { return ViewCone_HalfAngle; }
 
 	void SetEyeStalkType(EEyeStalkType NewType) { Type = NewType; }
+	void SetViewConeHalfAngle(float HalfAngle) { ViewCone_HalfAngle = HalfAngle; }
+	void SetViewConeLength(float Length) { ViewCone_Length = Length; }
 
 private:
 	AEyeNest* GetClosestNestToPlayer();
