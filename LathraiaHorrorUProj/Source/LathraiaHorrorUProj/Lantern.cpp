@@ -66,11 +66,11 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 {
 	if (CurrentLanternState == ELanternState::ELS_Held)
 	{
-		return CurrentFlameIntensity = FMath::Lerp(CurrentFlameIntensity, 0, BurnRate);
+		return CurrentFlameIntensity = FMath::FInterpConstantTo(CurrentFlameIntensity, 0,DeltaTime, BurnRate);
 	}
 	else
 	{
-		CurrentFlameIntensity = FMath::Lerp(CurrentFlameIntensity, MaxLanternIntensity, BurnRate) ;
+		CurrentFlameIntensity = FMath::FInterpConstantTo(CurrentFlameIntensity, MaxLanternIntensity,DeltaTime, BurnRate) ;
 		return CurrentFlameIntensity * StowedDimedRatio;
 	}
 
