@@ -12,6 +12,7 @@
 #include "Lantern.h"
 #include "Kismet/GameplayStatics.h"
 #include "InteractionComponent.h"
+#include "PanicManagerComponent.h"
 #include "Sound/SoundCue.h"
 
 ALHCharacter::ALHCharacter()
@@ -28,6 +29,7 @@ ALHCharacter::ALHCharacter()
 	CharacterMovementComponent = GetCharacterMovement();
 	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 
+	PanicManagerComponent = CreateDefaultSubobject<UPanicManagerComponent>(TEXT("PanicManager"));
 }
 
 void ALHCharacter::BeginPlay()
@@ -74,6 +76,22 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
+void ALHCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (PanicManagerComponent)
+	{
+
+		PanicManagerComponent->OnPanicTierOne.AddDynamic(this, &ALHCharacter::OnPanicTierOne);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp: Panic Manager Component is nullptr"));
+	}
+}
+
 void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -82,8 +100,6 @@ void ALHCharacter::Tick(float DeltaTime)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Health = %i"), Health));
 	}
-
-
 }
 
 float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -254,5 +270,10 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 	);
 
 	return bHit;
+}
+
+void ALHCharacter::OnPanicTierOne()
+{
+	UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp : Panic Tier One Reached"));
 }
 

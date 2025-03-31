@@ -3,6 +3,8 @@
 
 #include "AI/EyeNestManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "LHCharacter.h"
+#include "PanicManagerComponent.h"
 
 AEyeNestManager::AEyeNestManager()
 {
@@ -26,6 +28,15 @@ void AEyeNestManager::BeginPlay()
                 GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "Eye Nest Manager is missing some Eye Nest's!");
             }
         });
+
+    // setup panic tier delegates
+    PlayerPtr = GetWorld()->GetFirstPlayerController()->GetPawn<ALHCharacter>();
+    if (IsValid(PlayerPtr))
+    {
+        PlayerPtr->GetPanicManagerComponent()->OnPanicTierTwo.AddDynamic(this, &AEyeNestManager::OnEnterTier2);
+        PlayerPtr->GetPanicManagerComponent()->OnPanicTierThree.AddDynamic(this, &AEyeNestManager::OnEnterTier3);
+        PlayerPtr->GetPanicManagerComponent()->OnPanicTierFour.AddDynamic(this, &AEyeNestManager::OnEnterTier4);
+    }
 }
 
 void AEyeNestManager::SpawnEyeStalkAtClosestNest(FVector Point)
@@ -98,4 +109,23 @@ void AEyeNestManager::ClearEyeStalks()
         ANewEyeStalk* EyeStalkPtr = Cast<ANewEyeStalk>(EyeStalkActor);
         EyeStalkPtr->Destroy();
     }
+}
+
+void AEyeNestManager::OnEnterTier2()
+{
+    // no longer in eye stalk panic threshold
+    ClearEyeStalks();
+}
+
+void AEyeNestManager::OnEnterTier3()
+{
+    // should be no eye stalks spawned. Spawn a docile eye stalk
+    SpawnEyeStalkAtClosestNest(PlayerPtr->GetActorLocation());
+}
+
+void AEyeNestManager::OnEnterTier4()
+{
+    // de-spawn docile eyestalk, and spawn swift eye stalks
+    ClearEyeStalks();
+    SpawnEyeStalksAroundPoint(PlayerPtr->GetActorLocation(), SwiftSpawnRange);
 }

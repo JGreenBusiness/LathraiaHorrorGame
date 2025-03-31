@@ -3,6 +3,8 @@
 
 #include "AI/NewEyeStalk.h"
 #include "MathHelpers.h"
+#include "LHCharacter.h"
+#include "PanicManagerComponent.h"
 
 ANewEyeStalk::ANewEyeStalk()
 {
@@ -15,6 +17,19 @@ void ANewEyeStalk::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	PanicManagerComp = Cast<ALHCharacter>(PlayerActor)->GetPanicManagerComponent();
+	PreviousPanicRate = PanicManagerComp->PositivePanicRate;
+}
+
+void ANewEyeStalk::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	// technically the player is no longer seen by this destroyed eye stalk, so revert to previous panic rate
+	if (bPreviousPlayerSeen)
+	{
+		PanicManagerComp->PositivePanicRate = PreviousPanicRate;
+	}
 }
 
 void ANewEyeStalk::Tick(float DeltaTime)
@@ -31,10 +46,12 @@ void ANewEyeStalk::Tick(float DeltaTime)
 		}
 	}
 
-    if (IsPlayerInViewCone()) 
-    {
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, "Player in viewcone!");
-    }
+	bool bPlayerSeen = IsPlayerInViewCone();
+	if (bPreviousPlayerSeen != bPlayerSeen)
+	{
+		PanicManagerComp->PositivePanicRate = (bPlayerSeen ? PanicIncrease : PreviousPanicRate);
+		bPreviousPlayerSeen = bPlayerSeen;
+	}
 }
 
 void ANewEyeStalk::AttachToEyeNest(AEyeNest* InitialNest, TArray<AEyeNest*> FullRange)
