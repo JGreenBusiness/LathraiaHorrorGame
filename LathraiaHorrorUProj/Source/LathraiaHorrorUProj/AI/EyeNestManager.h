@@ -10,6 +10,18 @@
 
 #include "EyeNestManager.generated.h"
 
+USTRUCT()
+struct FViewConeVariables
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float ViewHalfAngle = 30;
+
+	UPROPERTY(EditAnywhere)
+	float ViewDistance = 1000;
+};
+
 UCLASS()
 class LATHRAIAHORRORUPROJ_API AEyeNestManager : public AActor
 {
@@ -17,6 +29,8 @@ class LATHRAIAHORRORUPROJ_API AEyeNestManager : public AActor
 	
 public:	
 	AEyeNestManager();
+
+	friend class FEyeStalkVisualizer;
 
 	void BeginPlay() override;
 
@@ -30,10 +44,26 @@ public:
 	void ClearEyeStalks();
 
 private:
+	UFUNCTION()
+	void OnEnterTier2();
+
+	UFUNCTION()
+	void OnEnterTier3();
+
+	UFUNCTION()
+	void OnEnterTier4();
+
+private:
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
-	TArray<AEyeNest*> EyeNests = {};
+	TMap<AEyeNest*, FViewConeVariables> EyeNests = {};
 
 	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
 	TSubclassOf<ANewEyeStalk> EyeStalkToSpawn = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Eye Nest Manager")
+	float SwiftSpawnRange = 1000.f; // in cm
+
+	UPROPERTY()
+	class ALHCharacter* PlayerPtr = nullptr;
 
 };
