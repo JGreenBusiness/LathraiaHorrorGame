@@ -36,8 +36,6 @@ void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
-
 	if (bStartWithLantern && LanternClass)
 	{
 		UWorld* World = GetWorld();
@@ -49,7 +47,6 @@ void ALHCharacter::BeginPlay()
 			SetUpLantern(Lantern);
 		}
 	}
-
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -96,28 +93,6 @@ void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Health = %i"), Health));
-	}
-}
-
-float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (Health > 0)
-	{
-		Health -= actualDamage;
-
-		UGameplayStatics::PlaySound2D(this, DamageSoundCue);
-	}
-	else
-	{
-		UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName(), false);
-	}
-
-	return actualDamage;
 }
 
 void ALHCharacter::OnInteractAction()
@@ -242,10 +217,11 @@ void ALHCharacter::LookUpAtRate(float Rate)
 
 void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 {
-	LanternToSetUp->InitializeLantern(GetMesh());
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+	LanternToSetUp->InitializeLantern(GetMesh(),PanicManagerComponent);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, HeldLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
+	LanternToSetUp->SetLanternState(ELanternState::ELS_Rekindling);
 }
 
 bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)

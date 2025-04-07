@@ -9,12 +9,14 @@
 class USkeletalMeshSocket;
 class UPointLightComponent;
 class UInteractionComponent;
+class UPanicManagerComponent;
 
 UENUM()
 enum class ELanternState : uint8
 {
-	ELS_Held,
-	ELS_Stowed
+	ELS_InUse,
+	ELS_Stowed,
+	ELS_Rekindling
 };
 
 
@@ -29,6 +31,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
 	void ChangeLanternState(ELanternState NewLanternState);
 
 	float LerpFlameIntensity(float DeltaTime);
@@ -43,9 +46,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
 	float RekindlingBurnRate = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float RekindlingDelay = 1.0f;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInteractionComponent* InteractionComponent;
+
+	UPanicManagerComponent* PanicManagerComponent;
 
 	UFUNCTION()
 	void OnInteraction();
@@ -68,10 +76,11 @@ protected:
 	float CurrentFlameIntensity;
 
 public:	
-	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh) { MeshWithLanternSockets = LanternSocketedMesh; }
+	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh, UPanicManagerComponent* PanicManager);
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 	void SetLanternState(ELanternState NewLanternState);
 
@@ -85,10 +94,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
 	void AttatchLanternToActiveSocket();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern Sockets")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern")
 	void OnLanternNewLanternState(); // Lantern positional lerping occurs in BP_Lantern Event Graph
 
 	void ToggleLanternHeldState();
 
-	void AddLanternSocket(ELanternState LanternState, FName LanternSocketName);
+	void AddLanternSocket(ELanternState LanternState, FName LanternSocketName); // Lantern Sockets are added in ALHCharacter::SetUpLantern
 };
