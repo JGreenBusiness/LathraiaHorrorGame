@@ -89,9 +89,9 @@ public:
 	TArray<FPanicTierData> PanicTierData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
-	float PositivePanicRate = .1f;
+	float PositivePanicRate = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
-	float NegativePanicRate = .1f;
+	float NegativePanicRate = 5.0f;
 
 };
