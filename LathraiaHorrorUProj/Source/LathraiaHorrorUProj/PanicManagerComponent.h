@@ -53,7 +53,7 @@ protected:
 	float MaxPanic = 100.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool Panicking = true;
+	bool bPanicking = true;
 
 	TArray<float> PanicTierThresholdArray;
 	int CurrentPanicTier = 0;
@@ -83,7 +83,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetPanicking(bool IsPanicking) { Panicking = IsPanicking; }
+	void SetPanicking(bool IsPanicking) { bPanicking = IsPanicking; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
 	TArray<FPanicTierData> PanicTierData;
