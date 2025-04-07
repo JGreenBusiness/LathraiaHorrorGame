@@ -128,15 +128,6 @@ void ALHCharacter::ToggleHeldLantern()
 	if (Lantern)
 	{
 		Lantern->ToggleLanternHeldState();
-
-		if (Lantern->GetActiveLanternState() == ELanternState::ELS_Held)
-		{
-			PanicManagerComponent->SetPanicking(false);
-		}
-		else
-		{
-			PanicManagerComponent->SetPanicking(true);
-		}
 	}
 }
 
@@ -226,11 +217,11 @@ void ALHCharacter::LookUpAtRate(float Rate)
 
 void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 {
-	LanternToSetUp->InitializeLantern(GetMesh());
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+	LanternToSetUp->InitializeLantern(GetMesh(),PanicManagerComponent);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, HeldLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
-	PanicManagerComponent->SetPanicking(false);
+	LanternToSetUp->SetLanternState(ELanternState::ELS_Rekindling);
 }
 
 bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
