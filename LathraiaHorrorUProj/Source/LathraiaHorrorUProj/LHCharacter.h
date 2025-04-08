@@ -91,6 +91,7 @@ public:
 	float SprintSpeed = 600.0;
 
 	// Lantern Related Properties
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
 	bool bStartWithLantern = true;
 
@@ -132,6 +133,8 @@ public:
 	UInputAction* PrimaryInputAction;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Config: Lantern")
+	float GetLanternFlameIntensity();
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 

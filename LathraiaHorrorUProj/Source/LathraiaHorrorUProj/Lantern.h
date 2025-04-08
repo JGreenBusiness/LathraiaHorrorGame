@@ -81,8 +81,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
 	void SetLanternState(ELanternState NewLanternState);
+
+	float GetFlameIntensityPercent() { return (CurrentFlameIntensity / MaxLanternIntensity); }
 
 	ELanternState GetActiveLanternState() { return CurrentLanternState; }
 
