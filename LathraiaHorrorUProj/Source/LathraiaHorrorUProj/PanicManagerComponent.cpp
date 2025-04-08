@@ -95,10 +95,5 @@ void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	LerpPanicMeter(DeltaTime);
 	UpdateCurrentPanicTier();
 	
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicMeter));
-	}
-
 }
 

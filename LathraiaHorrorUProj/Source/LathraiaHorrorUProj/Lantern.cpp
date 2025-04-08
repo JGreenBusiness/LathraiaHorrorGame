@@ -117,7 +117,7 @@ void ALantern::Tick(float DeltaTime)
 		PanicManagerComponent->SetPanicking(true);
 	}
 
-	if (GEngine)
+	if (bDebugModeOn && GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Flame = %f%%"), (CurrentFlameIntensity / MaxLanternIntensity)*100));
 

@@ -49,6 +49,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
 	float RekindlingDelay = 1.0f;
 
+	///Debugging Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
+	bool bDebugModeOn = false;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInteractionComponent* InteractionComponent;

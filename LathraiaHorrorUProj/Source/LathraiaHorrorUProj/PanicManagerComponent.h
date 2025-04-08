@@ -78,13 +78,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Panic")
 	FOnPanicTierDelegate OnPanicTierFive;
 
-
-public:
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void SetPanicking(bool IsPanicking) { bPanicking = IsPanicking; }
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
 	TArray<FPanicTierData> PanicTierData;
 
@@ -93,5 +86,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
 	float NegativePanicRate = 5.0f;
+
+public:
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void SetPanicking(bool IsPanicking) { bPanicking = IsPanicking; }
+
+	float GetPanicMeter() { return PanicMeter; }
 
 };
