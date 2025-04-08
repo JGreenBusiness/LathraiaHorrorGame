@@ -131,6 +131,15 @@ void ALHCharacter::ToggleHeldLantern()
 	}
 }
 
+float ALHCharacter::GetLanternFlameIntensity()
+{
+	if (Lantern)
+	{
+		return Lantern->GetFlameIntensityPercent();
+	}
+	return 0;
+}
+
 void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
 {
 	if (Controller != nullptr)
