@@ -96,12 +96,16 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsInLineOfSight = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bReadyToDecreasePanic = false;
 	
 public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SetPanicking(bool IsPanicking) { bIsPanicking = IsPanicking; }
+	void DecreasePanic(float ValueToDecreasePanicBy);
 
 	float GetPanicMeter() { return PanicMeter; }
 

@@ -61,9 +61,19 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 		}
 	}
 
+	if (!bIsInLineOfSight && newTier > 3)
+	{
+		bReadyToDecreasePanic = true;
+	}
+	else
+	{
+		bReadyToDecreasePanic = false;
+	}
+
 	if (CurrentPanicTier != newTier )
 	{
 		CurrentPanicTier = newTier;
+
 
 		switch (CurrentPanicTier)
 		{
@@ -99,4 +109,13 @@ void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	LerpPanicMeter(DeltaTime);
 	UpdateCurrentPanicTier();
+}
+
+void UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
+{
+	PanicMeter -= ValueToDecreasePanicBy;
+	if (PanicMeter < 0)
+	{
+		PanicMeter = 0;
+	}
 }

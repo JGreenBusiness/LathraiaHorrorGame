@@ -69,6 +69,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
+		Input->BindAction(BreatheInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputBreathe);
+
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
 		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
@@ -81,8 +83,6 @@ void ALHCharacter::PostInitializeComponents()
 
 	if (PanicManagerComponent)
 	{
-
-		PanicManagerComponent->OnPanicTierOne.AddDynamic(this, &ALHCharacter::OnPanicTierOne);
 
 	}
 	else
@@ -216,6 +216,14 @@ void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 	OnInteractAction();
 }
 
+void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
+{
+	if (PanicManagerComponent && PanicManagerComponent->bReadyToDecreasePanic)
+	{
+		PanicManagerComponent->DecreasePanic(50);
+	}
+}
+
 void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 {
 	ToggleHeldLantern();
@@ -273,9 +281,3 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 
 	return bHit;
 }
-
-void ALHCharacter::OnPanicTierOne()
-{
-	UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp : Panic Tier One Reached"));
-}
-

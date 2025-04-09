@@ -18,6 +18,7 @@ struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
+
 class ALantern;
 class USoundCue;
 class UPanicManagerComponent;
@@ -72,12 +73,8 @@ protected:
 	bool bLanternRekindleReady = false;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
-	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
-	
-	UFUNCTION()
-	void OnPanicTierOne();
 
+	// Character & Controls
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float TurnRateGamepad;
 
@@ -130,6 +127,9 @@ public:
 	UInputAction* InteractInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* BreatheInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* PrimaryInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
@@ -140,6 +140,10 @@ public:
 	bool bDebugModeOn = false;
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
+	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
+
 	UFUNCTION(BlueprintCallable, Category = "LHCharacter Config: Lantern")
 	float GetLanternFlameIntensity();
 
@@ -161,6 +165,8 @@ public:
 	void InputUnCrouch(const FInputActionValue& InputActionValue);
 
 	void InputInteract(const FInputActionValue& InputActionValue);
+
+	void InputBreathe(const FInputActionValue& InputActionValue);
 
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
 
