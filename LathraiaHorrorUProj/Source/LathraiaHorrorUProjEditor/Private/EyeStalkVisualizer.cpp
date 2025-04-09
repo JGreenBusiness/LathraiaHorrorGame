@@ -36,20 +36,26 @@ void FEyeStalkVisualizer::DrawVisualization(const UActorComponent* Component, co
 	if (IsValid(EyeNestManager))
 	{
 		// For each eye nest, add the view cone
-		for (auto& Pair : EyeNestManager->EyeNests)
+		if(EyeNestManager->EyeNests.Num() > 0)
 		{
-			// View cone
-			DrawWireSphereCappedCone(
-				PDI,
-				Pair.Key->GetActorTransform(),
-				Pair.Value.ViewDistance,
-				Pair.Value.ViewHalfAngle,
-				12,
-				1,
-				12,
-				FLinearColor(1, 0, 0, 0.5f),
-				SDPG_World
-			);
+			for (auto& Pair : EyeNestManager->EyeNests)
+			{
+				if (Pair.Key && IsValid(Pair.Key))
+				{
+					// View cone
+					DrawWireSphereCappedCone(
+						PDI,
+						Pair.Key->GetActorTransform(),
+						Pair.Value.ViewDistance,
+						Pair.Value.ViewHalfAngle,
+						12,
+						1,
+						12,
+						FLinearColor(1, 0, 0, 0.5f),
+						SDPG_World
+					);
+				}
+			}
 		}
 	}
 }
