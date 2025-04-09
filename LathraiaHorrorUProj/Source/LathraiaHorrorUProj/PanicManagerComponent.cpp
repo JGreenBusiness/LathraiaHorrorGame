@@ -33,9 +33,14 @@ void UPanicManagerComponent::BeginPlay()
 
 void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 {
-	if (bPanicking)
+	if (bIsInLineOfSight)
 	{
-		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, PositivePanicRate);
+		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, SeenPositivePanicRate);
+
+	}
+	else if (bIsPanicking)
+	{
+		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, DefaultPositivePanicRate);
 	}
 	else
 	{
@@ -94,11 +99,4 @@ void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	LerpPanicMeter(DeltaTime);
 	UpdateCurrentPanicTier();
-	
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicMeter));
-	}
-
 }
-

@@ -91,6 +91,7 @@ public:
 	float SprintSpeed = 600.0;
 
 	// Lantern Related Properties
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
 	bool bStartWithLantern = true;
 
@@ -131,7 +132,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* PrimaryInputAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* DebugInputAction;
+
+	///Debugging Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
+	bool bDebugModeOn = false;
+
 public:
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Config: Lantern")
+	float GetLanternFlameIntensity();
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
@@ -153,5 +163,7 @@ public:
 	void InputInteract(const FInputActionValue& InputActionValue);
 
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
+
+	void InputDebugAction(const FInputActionValue& InputActionValue);
 
 };

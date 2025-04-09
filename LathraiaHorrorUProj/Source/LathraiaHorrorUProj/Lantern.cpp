@@ -108,11 +108,16 @@ void ALantern::InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh, UP
 void ALantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	float oldLightIntensity = CurrentFlameIntensity;
 	float newLightIntensity = LerpFlameIntensity(DeltaTime);
 	PointLightComponent->SetIntensity(newLightIntensity);
 
-	if (GEngine)
+	if (newLightIntensity == 0 && oldLightIntensity != newLightIntensity)
+	{
+		PanicManagerComponent->SetPanicking(true);
+	}
+
+	if (bDebugModeOn && GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Flame = %f%%"), (CurrentFlameIntensity / MaxLanternIntensity)*100));
 

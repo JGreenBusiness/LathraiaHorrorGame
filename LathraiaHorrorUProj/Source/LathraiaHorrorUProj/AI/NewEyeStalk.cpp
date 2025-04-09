@@ -18,7 +18,6 @@ void ANewEyeStalk::BeginPlay()
 
 	PlayerActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	PanicManagerComp = Cast<ALHCharacter>(PlayerActor)->GetPanicManagerComponent();
-	PreviousPanicRate = PanicManagerComp->PositivePanicRate;
 }
 
 void ANewEyeStalk::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -28,7 +27,7 @@ void ANewEyeStalk::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	// technically the player is no longer seen by this destroyed eye stalk, so revert to previous panic rate
 	if (bPreviousPlayerSeen)
 	{
-		PanicManagerComp->PositivePanicRate = PreviousPanicRate;
+		PanicManagerComp->bIsInLineOfSight = false;
 	}
 }
 
@@ -49,7 +48,7 @@ void ANewEyeStalk::Tick(float DeltaTime)
 	bool bPlayerSeen = IsPlayerInViewCone();
 	if (bPreviousPlayerSeen != bPlayerSeen)
 	{
-		PanicManagerComp->PositivePanicRate = (bPlayerSeen ? PanicIncrease : PreviousPanicRate);
+		PanicManagerComp->bIsInLineOfSight = bPlayerSeen;
 		bPreviousPlayerSeen = bPlayerSeen;
 	}
 }

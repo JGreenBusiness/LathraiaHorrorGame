@@ -70,6 +70,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
+
+		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
 	}
 }
 
@@ -92,6 +94,11 @@ void ALHCharacter::PostInitializeComponents()
 void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bDebugModeOn && GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicManagerComponent->GetPanicMeter()));
+	}
 
 }
 
@@ -129,6 +136,15 @@ void ALHCharacter::ToggleHeldLantern()
 	{
 		Lantern->ToggleLanternHeldState();
 	}
+}
+
+float ALHCharacter::GetLanternFlameIntensity()
+{
+	if (Lantern)
+	{
+		return Lantern->GetFlameIntensityPercent();
+	}
+	return 0;
 }
 
 void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
@@ -203,6 +219,16 @@ void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 {
 	ToggleHeldLantern();
+}
+
+void ALHCharacter::InputDebugAction(const FInputActionValue& InputActionValue)
+{
+	bDebugModeOn ? bDebugModeOn = false : bDebugModeOn = true;
+
+	if (Lantern)
+	{
+		Lantern->bDebugModeOn = bDebugModeOn;
+	}
 }
 
 void ALHCharacter::TurnAtRate(float Rate)
