@@ -36,8 +36,6 @@ void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
-
 	if (bStartWithLantern && LanternClass)
 	{
 		UWorld* World = GetWorld();
@@ -49,7 +47,6 @@ void ALHCharacter::BeginPlay()
 			SetUpLantern(Lantern);
 		}
 	}
-
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -73,6 +70,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
+
+		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
 	}
 }
 
@@ -96,28 +95,11 @@ void ALHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GEngine)
+	if (bDebugModeOn && GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Health = %i"), Health));
-	}
-}
-
-float ALHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (Health > 0)
-	{
-		Health -= actualDamage;
-
-		UGameplayStatics::PlaySound2D(this, DamageSoundCue);
-	}
-	else
-	{
-		UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName(), false);
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicManagerComponent->GetPanicMeter()));
 	}
 
-	return actualDamage;
 }
 
 void ALHCharacter::OnInteractAction()
@@ -154,6 +136,15 @@ void ALHCharacter::ToggleHeldLantern()
 	{
 		Lantern->ToggleLanternHeldState();
 	}
+}
+
+float ALHCharacter::GetLanternFlameIntensity()
+{
+	if (Lantern)
+	{
+		return Lantern->GetFlameIntensityPercent();
+	}
+	return 0;
 }
 
 void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
@@ -230,6 +221,16 @@ void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 	ToggleHeldLantern();
 }
 
+void ALHCharacter::InputDebugAction(const FInputActionValue& InputActionValue)
+{
+	bDebugModeOn ? bDebugModeOn = false : bDebugModeOn = true;
+
+	if (Lantern)
+	{
+		Lantern->bDebugModeOn = bDebugModeOn;
+	}
+}
+
 void ALHCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
@@ -242,10 +243,11 @@ void ALHCharacter::LookUpAtRate(float Rate)
 
 void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 {
-	LanternToSetUp->InitializeLantern(GetMesh());
-	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Held, HeldLanternSocketName);
+	LanternToSetUp->InitializeLantern(GetMesh(),PanicManagerComponent);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, HeldLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
-	LanternToSetUp->SetLanternState(ELanternState::ELS_Held);
+	LanternToSetUp->SetLanternState(ELanternState::ELS_Rekindling);
 }
 
 bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)

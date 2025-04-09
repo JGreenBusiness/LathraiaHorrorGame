@@ -47,8 +47,6 @@ private:
 
 protected:
 	
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
 	void OnInteractAction();
 
 	void ToggleHeldLantern();
@@ -73,17 +71,12 @@ protected:
 
 	bool bLanternRekindleReady = false;
 
-	int Health;
-
 public:
 	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
 	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
 	
 	UFUNCTION()
 	void OnPanicTierOne();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config")
-	int MaxHealth = 100;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float TurnRateGamepad;
@@ -97,10 +90,8 @@ public:
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0;
 
-	UPROPERTY(Category = "LHCharacter Config", EditAnywhere)
-	USoundCue* DamageSoundCue = nullptr;
-
 	// Lantern Related Properties
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Lantern")
 	bool bStartWithLantern = true;
 
@@ -141,7 +132,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* PrimaryInputAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* DebugInputAction;
+
+	///Debugging Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
+	bool bDebugModeOn = false;
+
 public:
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Config: Lantern")
+	float GetLanternFlameIntensity();
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
@@ -163,5 +163,7 @@ public:
 	void InputInteract(const FInputActionValue& InputActionValue);
 
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
+
+	void InputDebugAction(const FInputActionValue& InputActionValue);
 
 };
