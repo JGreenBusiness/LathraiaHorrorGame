@@ -65,9 +65,5 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
 	TEnumAsByte<EEyeStalkType> Type;
 
-	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 0))
-	float PanicIncrease = 2.5f;
-
-	float PreviousPanicRate = 0.f;
 	bool bPreviousPlayerSeen = false;
 };
