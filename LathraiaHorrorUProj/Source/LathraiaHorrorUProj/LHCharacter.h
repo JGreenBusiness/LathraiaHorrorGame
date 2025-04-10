@@ -43,6 +43,9 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	UFUNCTION()
+	void RestartLevel();
+
 private:
 	float DefaultMaxWalkSpeed;
 

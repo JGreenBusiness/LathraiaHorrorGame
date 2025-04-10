@@ -49,8 +49,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float PanicMeter = 0.0f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float MaxPanic = 100.0f;
+	float MaxPanic = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsPanicking = true;
@@ -78,6 +77,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Panic")
 	FOnPanicTierDelegate OnPanicTierFive;
+
+	UPROPERTY(BlueprintAssignable, Category = "Panic")
+	FOnPanicTierDelegate OnMaxPanicTier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
 	TArray<FPanicTierData> PanicTierData;

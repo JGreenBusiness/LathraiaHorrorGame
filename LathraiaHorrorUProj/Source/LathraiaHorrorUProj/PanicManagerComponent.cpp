@@ -27,7 +27,12 @@ void UPanicManagerComponent::BeginPlay()
 	
 	for (FPanicTierData PanicData : PanicTierData)
 	{
-		PanicTierThresholdArray.Add(PanicData.Threshold);
+		float PanicThreshold = PanicData.Threshold;
+		PanicTierThresholdArray.Add(PanicThreshold);
+		if (PanicThreshold > MaxPanic)
+		{
+			MaxPanic = PanicThreshold;
+		}
 	}
 }
 
@@ -50,6 +55,11 @@ void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 
 void UPanicManagerComponent::UpdateCurrentPanicTier()
 {
+	if (PanicMeter >= MaxPanic)
+	{
+		OnMaxPanicTier.Broadcast();
+	}
+
 	int newTier = 0;
 
 	for (int i = 0; i < PanicTierThresholdArray.Num(); ++i)

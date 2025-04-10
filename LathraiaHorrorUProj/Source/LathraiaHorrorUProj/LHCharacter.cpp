@@ -83,12 +83,18 @@ void ALHCharacter::PostInitializeComponents()
 
 	if (PanicManagerComponent)
 	{
-
+		PanicManagerComponent->OnMaxPanicTier.AddDynamic(this, &ALHCharacter::RestartLevel);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp: Panic Manager Component is nullptr"));
 	}
+}
+
+void ALHCharacter::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Restarting Level"));
 }
 
 void ALHCharacter::Tick(float DeltaTime)
