@@ -41,15 +41,23 @@ void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 	if (bIsInLineOfSight)
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, SeenPositivePanicRate);
-
+		bIsMassPanicReductionEnabled = false;
+		if (!bWasInLineOfSight)
+		{
+			bWasInLineOfSight = true;
+		}
 	}
 	else if (bIsPanicking)
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, DefaultPositivePanicRate);
+
+		StartOutOfLineOfSightDelay();
 	}
 	else
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, 0, DeltaTime, NegativePanicRate);
+
+		StartOutOfLineOfSightDelay();
 	}
 }
 
@@ -69,15 +77,6 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 			newTier = i;
 			break;
 		}
-	}
-
-	if (!bIsInLineOfSight && newTier > 3)
-	{
-		bReadyToDecreasePanic = true;
-	}
-	else
-	{
-		bReadyToDecreasePanic = false;
 	}
 
 	if (CurrentPanicTier != newTier )
@@ -112,20 +111,45 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 
 }
 
+void UPanicManagerComponent::UpdateMassPanicReductionFlag()
+{
+	if (!bIsInLineOfSight && CurrentPanicTier > PanicReductionTier)
+	{
+		bIsMassPanicReductionEnabled = true;
+	}
+}
+
+void UPanicManagerComponent::StartOutOfLineOfSightDelay()
+{
+	if (bWasInLineOfSight)
+	{
+		bWasInLineOfSight = false;
+		GetWorld()->GetTimerManager().SetTimer(MassPanicReductionTimer, this, &UPanicManagerComponent::UpdateMassPanicReductionFlag, MassPanicReductionDelay, false);
+	}
+	else if(GetWorld()->GetTimerManager().GetTimerRemaining(MassPanicReductionTimer) <= 0 && !bIsMassPanicReductionEnabled)
+	{
+		UpdateMassPanicReductionFlag();
+	}
+}
+
 
 void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	LerpPanicMeter(DeltaTime);
 	UpdateCurrentPanicTier();
+	LerpPanicMeter(DeltaTime);
 }
 
 void UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
 {
-	PanicMeter -= ValueToDecreasePanicBy;
-	if (PanicMeter < 0)
+	if (bIsMassPanicReductionEnabled)
 	{
-		PanicMeter = 0;
+		bIsMassPanicReductionEnabled = false;
+		PanicMeter -= ValueToDecreasePanicBy;
+		if (PanicMeter < 0)
+		{
+			PanicMeter = 0;
+		}
 	}
 }

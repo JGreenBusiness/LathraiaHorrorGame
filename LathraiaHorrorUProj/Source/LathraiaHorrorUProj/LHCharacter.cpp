@@ -224,7 +224,7 @@ void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 
 void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
 {
-	if (PanicManagerComponent && PanicManagerComponent->bReadyToDecreasePanic)
+	if (PanicManagerComponent && PanicManagerComponent->bIsMassPanicReductionEnabled)
 	{
 		PanicManagerComponent->DecreasePanic(BreathPanicReduction);
 	}

@@ -45,7 +45,10 @@ protected:
 
 	void LerpPanicMeter(float DeltaTime);
 	void UpdateCurrentPanicTier();
+	void UpdateMassPanicReductionFlag();
+	void StartOutOfLineOfSightDelay();
 
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float PanicMeter = 0.0f;
 
@@ -54,8 +57,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsPanicking = true;
 
+	bool bWasInLineOfSight = false;
+
 	TArray<float> PanicTierThresholdArray;
 	int CurrentPanicTier = 0;
+
+	FTimerHandle MassPanicReductionTimer;
 
 public:	
 	// Panic Tiers
@@ -94,13 +101,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
 	float NegativePanicRate = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
+	int PanicReductionTier = 3;
 	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsInLineOfSight = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bReadyToDecreasePanic = false;
+	bool bIsMassPanicReductionEnabled = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic Manager Config")
+	float MassPanicReductionDelay = 10.0f;
 	
 public:
 
