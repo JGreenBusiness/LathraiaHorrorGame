@@ -85,10 +85,14 @@ public:
 	FOnInteract OnInteract;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Interaction")
-	float InteractionRadius = 500.0;
+	float InteractionRadius = 500.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Panic")
+	float BreathPanicReduction = 50.0f;
 
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
-	float SprintSpeed = 600.0;
+	float SprintSpeed = 600.0f;
 
 	// Lantern Related Properties
 

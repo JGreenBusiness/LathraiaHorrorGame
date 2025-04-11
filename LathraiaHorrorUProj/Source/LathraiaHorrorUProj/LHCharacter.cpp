@@ -226,7 +226,7 @@ void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
 {
 	if (PanicManagerComponent && PanicManagerComponent->bReadyToDecreasePanic)
 	{
-		PanicManagerComponent->DecreasePanic(50);
+		PanicManagerComponent->DecreasePanic(BreathPanicReduction);
 	}
 }
 
