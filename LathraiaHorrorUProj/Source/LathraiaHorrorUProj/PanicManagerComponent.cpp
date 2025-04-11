@@ -27,7 +27,12 @@ void UPanicManagerComponent::BeginPlay()
 	
 	for (FPanicTierData PanicData : PanicTierData)
 	{
-		PanicTierThresholdArray.Add(PanicData.Threshold);
+		float PanicThreshold = PanicData.Threshold;
+		PanicTierThresholdArray.Add(PanicThreshold);
+		if (PanicThreshold > MaxPanic)
+		{
+			MaxPanic = PanicThreshold;
+		}
 	}
 }
 
@@ -36,20 +41,33 @@ void UPanicManagerComponent::LerpPanicMeter(float DeltaTime)
 	if (bIsInLineOfSight)
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, SeenPositivePanicRate);
-
+		bIsMassPanicReductionEnabled = false;
+		if (!bWasInLineOfSight)
+		{
+			bWasInLineOfSight = true;
+		}
 	}
 	else if (bIsPanicking)
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, MaxPanic, DeltaTime, DefaultPositivePanicRate);
+
+		StartOutOfLineOfSightDelay();
 	}
 	else
 	{
 		PanicMeter = FMath::FInterpConstantTo(PanicMeter, 0, DeltaTime, NegativePanicRate);
+
+		StartOutOfLineOfSightDelay();
 	}
 }
 
 void UPanicManagerComponent::UpdateCurrentPanicTier()
 {
+	if (PanicMeter >= MaxPanic)
+	{
+		OnMaxPanicTier.Broadcast();
+	}
+
 	int newTier = 0;
 
 	for (int i = 0; i < PanicTierThresholdArray.Num(); ++i)
@@ -64,6 +82,7 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 	if (CurrentPanicTier != newTier )
 	{
 		CurrentPanicTier = newTier;
+
 
 		switch (CurrentPanicTier)
 		{
@@ -92,11 +111,45 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 
 }
 
+void UPanicManagerComponent::UpdateMassPanicReductionFlag()
+{
+	if (!bIsInLineOfSight && CurrentPanicTier > PanicReductionTier)
+	{
+		bIsMassPanicReductionEnabled = true;
+	}
+}
+
+void UPanicManagerComponent::StartOutOfLineOfSightDelay()
+{
+	if (bWasInLineOfSight)
+	{
+		bWasInLineOfSight = false;
+		GetWorld()->GetTimerManager().SetTimer(MassPanicReductionTimer, this, &UPanicManagerComponent::UpdateMassPanicReductionFlag, MassPanicReductionDelay, false);
+	}
+	else if(GetWorld()->GetTimerManager().GetTimerRemaining(MassPanicReductionTimer) <= 0 && !bIsMassPanicReductionEnabled)
+	{
+		UpdateMassPanicReductionFlag();
+	}
+}
+
 
 void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	LerpPanicMeter(DeltaTime);
 	UpdateCurrentPanicTier();
+	LerpPanicMeter(DeltaTime);
+}
+
+void UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
+{
+	if (bIsMassPanicReductionEnabled)
+	{
+		bIsMassPanicReductionEnabled = false;
+		PanicMeter -= ValueToDecreasePanicBy;
+		if (PanicMeter < 0)
+		{
+			PanicMeter = 0;
+		}
+	}
 }

@@ -18,6 +18,7 @@ struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
+
 class ALantern;
 class USoundCue;
 class UPanicManagerComponent;
@@ -41,6 +42,9 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 	virtual void PostInitializeComponents() override;
+
+	UFUNCTION()
+	void RestartLevel();
 
 private:
 	float DefaultMaxWalkSpeed;
@@ -72,12 +76,8 @@ protected:
 	bool bLanternRekindleReady = false;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
-	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
-	
-	UFUNCTION()
-	void OnPanicTierOne();
 
+	// Character & Controls
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float TurnRateGamepad;
 
@@ -85,10 +85,14 @@ public:
 	FOnInteract OnInteract;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Interaction")
-	float InteractionRadius = 500.0;
+	float InteractionRadius = 500.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Panic")
+	float BreathPanicReduction = 50.0f;
 
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
-	float SprintSpeed = 600.0;
+	float SprintSpeed = 600.0f;
 
 	// Lantern Related Properties
 
@@ -130,6 +134,9 @@ public:
 	UInputAction* InteractInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* BreatheInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* PrimaryInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
@@ -140,6 +147,10 @@ public:
 	bool bDebugModeOn = false;
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "LHCharacter Panic")
+	UPanicManagerComponent* GetPanicManagerComponent() { return PanicManagerComponent; }
+
 	UFUNCTION(BlueprintCallable, Category = "LHCharacter Config: Lantern")
 	float GetLanternFlameIntensity();
 
@@ -161,6 +172,8 @@ public:
 	void InputUnCrouch(const FInputActionValue& InputActionValue);
 
 	void InputInteract(const FInputActionValue& InputActionValue);
+
+	void InputBreathe(const FInputActionValue& InputActionValue);
 
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
 

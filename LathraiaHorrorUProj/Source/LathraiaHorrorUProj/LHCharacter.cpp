@@ -69,6 +69,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
+		Input->BindAction(BreatheInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputBreathe);
+
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
 		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
@@ -81,14 +83,18 @@ void ALHCharacter::PostInitializeComponents()
 
 	if (PanicManagerComponent)
 	{
-
-		PanicManagerComponent->OnPanicTierOne.AddDynamic(this, &ALHCharacter::OnPanicTierOne);
-
+		PanicManagerComponent->OnMaxPanicTier.AddDynamic(this, &ALHCharacter::RestartLevel);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp: Panic Manager Component is nullptr"));
 	}
+}
+
+void ALHCharacter::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Restarting Level"));
 }
 
 void ALHCharacter::Tick(float DeltaTime)
@@ -216,6 +222,14 @@ void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 	OnInteractAction();
 }
 
+void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
+{
+	if (PanicManagerComponent && PanicManagerComponent->bIsMassPanicReductionEnabled)
+	{
+		PanicManagerComponent->DecreasePanic(BreathPanicReduction);
+	}
+}
+
 void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 {
 	ToggleHeldLantern();
@@ -273,9 +287,3 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 
 	return bHit;
 }
-
-void ALHCharacter::OnPanicTierOne()
-{
-	UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp : Panic Tier One Reached"));
-}
-
