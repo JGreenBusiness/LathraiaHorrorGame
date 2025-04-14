@@ -1,0 +1,5 @@
+- Stepping noises on character
+- Pause button
+- Main menu
+- Settings
+- Vignette on panic system
