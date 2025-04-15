@@ -15,6 +15,7 @@ class USoundBase;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class APostProcessVolume;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
@@ -65,6 +66,9 @@ protected:
 
 	bool PerformSphereTrace(TArray<FHitResult>& OutHits);
 
+	UFUNCTION()
+	void OnPanicTierChanged();
+
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -72,6 +76,9 @@ protected:
 
 	UCharacterMovementComponent* CharacterMovementComponent;
 	ALantern* Lantern = nullptr;
+
+	UPROPERTY()
+	APostProcessVolume* PostProcessVolume = nullptr;
 
 	bool bLanternRekindleReady = false;
 
@@ -90,6 +97,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Panic")
 	float BreathPanicReduction = 50.0f;
+
+	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
+	float Vignette_Default = 0.4f;
+
+	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
+	float Vignette_TierTwo = 0.6f;
+
+	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
+	float Vignette_TierThree = 0.8f;
+
+	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
+	float Vignette_TierFour = 1.0f;
 
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0f;
