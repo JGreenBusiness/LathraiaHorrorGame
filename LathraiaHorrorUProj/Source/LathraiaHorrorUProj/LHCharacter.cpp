@@ -14,6 +14,7 @@
 #include "InteractionComponent.h"
 #include "PanicManagerComponent.h"
 #include "Sound/SoundCue.h"
+#include "Engine/PostProcessVolume.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -47,6 +48,15 @@ void ALHCharacter::BeginPlay()
 			SetUpLantern(Lantern);
 		}
 	}
+
+	// Setup panic states to adjust vignette post process
+	PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), APostProcessVolume::StaticClass()));
+	PostProcessVolume->Settings.bOverride_VignetteIntensity = true;
+
+	PanicManagerComponent->OnPanicTierTwo.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	PanicManagerComponent->OnPanicTierThree.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	PanicManagerComponent->OnPanicTierFour.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	PanicManagerComponent->OnPanicTierFive.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -286,4 +296,23 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 	);
 
 	return bHit;
+}
+
+void ALHCharacter::OnPanicTierChanged()
+{
+	if (!IsValid(PostProcessVolume))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "No valid post process volume in LHCharacter::OnPanicTierChanged!");
+		return;
+	}
+
+	const int CurrentPanicTier = PanicManagerComponent->GetCurrentPanicTier();
+
+	switch (CurrentPanicTier)
+	{
+		case 2: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
+		case 3: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierTwo; break;
+		case 4: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierThree; break;
+		case 5: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierFour; break;
+	}
 }

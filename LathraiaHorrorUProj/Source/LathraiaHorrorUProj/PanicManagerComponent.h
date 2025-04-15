@@ -124,4 +124,5 @@ public:
 
 	float GetPanicMeter() { return PanicMeter; }
 
+	const int GetCurrentPanicTier() const { return CurrentPanicTier; }
 };
