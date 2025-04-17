@@ -15,6 +15,7 @@
 #include "PanicManagerComponent.h"
 #include "Sound/SoundCue.h"
 #include "Engine/PostProcessVolume.h"
+#include "Blueprint/UserWidget.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -84,6 +85,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
 		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
+
+		Input->BindAction(PauseInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPauseAction);
 	}
 }
 
@@ -252,6 +255,21 @@ void ALHCharacter::InputDebugAction(const FInputActionValue& InputActionValue)
 	if (Lantern)
 	{
 		Lantern->bDebugModeOn = bDebugModeOn;
+	}
+}
+
+void ALHCharacter::InputPauseAction(const FInputActionValue& InputActionValue)
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	if (APlayerController* PController = Cast<APlayerController>(Controller))
+	{
+		PController->SetShowMouseCursor(true);
+		PController->SetInputMode(FInputModeUIOnly());
+	}
+
+	if (UUserWidget* PauseMenuPtr = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidget))
+	{
+		PauseMenuPtr->AddToViewport();
 	}
 }
 
