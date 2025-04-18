@@ -16,6 +16,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class APostProcessVolume;
+class UUserWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
@@ -83,6 +84,9 @@ protected:
 	bool bLanternRekindleReady = false;
 
 public:
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuWidget;
 
 	// Character & Controls
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -161,6 +165,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
 	UInputAction* DebugInputAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LHCharacter Config: Enhanced Input")
+	UInputAction* PauseInputAction;
+
 	///Debugging Variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
 	bool bDebugModeOn = false;
@@ -197,5 +204,7 @@ public:
 	void InputPrimaryAction(const FInputActionValue& InputActionValue);
 
 	void InputDebugAction(const FInputActionValue& InputActionValue);
+
+	void InputPauseAction(const FInputActionValue& InputActionValue);
 
 };
