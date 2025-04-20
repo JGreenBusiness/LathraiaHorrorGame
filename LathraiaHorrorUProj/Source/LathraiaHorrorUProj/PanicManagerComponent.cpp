@@ -141,7 +141,7 @@ void UPanicManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	LerpPanicMeter(DeltaTime);
 }
 
-void UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
+bool UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
 {
 	if (bIsMassPanicReductionEnabled)
 	{
@@ -151,5 +151,9 @@ void UPanicManagerComponent::DecreasePanic(float ValueToDecreasePanicBy)
 		{
 			PanicMeter = 0;
 		}
+		UpdateCurrentPanicTier();
+		return true;
 	}
+
+	return false;
 }

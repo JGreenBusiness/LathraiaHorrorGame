@@ -52,12 +52,18 @@ void ALHCharacter::BeginPlay()
 
 	// Setup panic states to adjust vignette post process
 	PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), APostProcessVolume::StaticClass()));
-	PostProcessVolume->Settings.bOverride_VignetteIntensity = true;
+	if (PostProcessVolume)
+	{
+		PostProcessVolume->Settings.bOverride_VignetteIntensity = true;
+	}
 
-	PanicManagerComponent->OnPanicTierTwo.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
-	PanicManagerComponent->OnPanicTierThree.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
-	PanicManagerComponent->OnPanicTierFour.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
-	PanicManagerComponent->OnPanicTierFive.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	if (PanicManagerComponent)
+	{
+		PanicManagerComponent->OnPanicTierTwo.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierThree.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFour.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFive.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -239,7 +245,10 @@ void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
 {
 	if (PanicManagerComponent && PanicManagerComponent->bIsMassPanicReductionEnabled)
 	{
-		PanicManagerComponent->DecreasePanic(BreathPanicReduction);
+		if (PanicManagerComponent->DecreasePanic(BreathPanicReduction))
+		{
+			OnPanicTierChanged();
+		}
 	}
 }
 
@@ -328,6 +337,7 @@ void ALHCharacter::OnPanicTierChanged()
 
 	switch (CurrentPanicTier)
 	{
+		case 1: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
 		case 2: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
 		case 3: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierTwo; break;
 		case 4: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierThree; break;
