@@ -132,21 +132,26 @@ void ALHCharacter::OnInteractAction()
 	TArray<FHitResult> hitResults;
 	if (PerformSphereTrace(hitResults))
 	{
+		TArray<AActor*> hitActors;
 		for (auto& hit : hitResults)
 		{
 			if (AActor* actor = hit.GetActor())
 			{
-				UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
-				if (interactionComponent)
+				if (!hitActors.Contains(actor))
 				{
-					interactionComponent->Interact();
-
-					if (!Lantern)
+					hitActors.Add(actor);
+					UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
+					if (interactionComponent)
 					{
-						if (ALantern* foundLantern = Cast<ALantern>(actor))
+						interactionComponent->Interact();
+
+						if (!Lantern)
 						{
-							Lantern = foundLantern;
-							SetUpLantern(Lantern);
+							if (ALantern* foundLantern = Cast<ALantern>(actor))
+							{
+								Lantern = foundLantern;
+								SetUpLantern(Lantern);
+							}
 						}
 					}
 				}
