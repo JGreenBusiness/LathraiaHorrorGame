@@ -14,7 +14,8 @@ public class LathraiaHorrorUProj : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"AIModule"
+			"AIModule",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

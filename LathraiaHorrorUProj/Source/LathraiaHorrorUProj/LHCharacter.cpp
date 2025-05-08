@@ -14,6 +14,8 @@
 #include "InteractionComponent.h"
 #include "PanicManagerComponent.h"
 #include "Sound/SoundCue.h"
+#include "Engine/PostProcessVolume.h"
+#include "Blueprint/UserWidget.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -47,6 +49,21 @@ void ALHCharacter::BeginPlay()
 			SetUpLantern(Lantern);
 		}
 	}
+
+	// Setup panic states to adjust vignette post process
+	PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), APostProcessVolume::StaticClass()));
+	if (PostProcessVolume)
+	{
+		PostProcessVolume->Settings.bOverride_VignetteIntensity = true;
+	}
+
+	if (PanicManagerComponent)
+	{
+		PanicManagerComponent->OnPanicTierTwo.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierThree.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFour.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFive.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -74,6 +91,8 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
 		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
+
+		Input->BindAction(PauseInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPauseAction);
 	}
 }
 
@@ -113,21 +132,26 @@ void ALHCharacter::OnInteractAction()
 	TArray<FHitResult> hitResults;
 	if (PerformSphereTrace(hitResults))
 	{
+		TArray<AActor*> hitActors;
 		for (auto& hit : hitResults)
 		{
 			if (AActor* actor = hit.GetActor())
 			{
-				UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
-				if (interactionComponent)
+				if (!hitActors.Contains(actor))
 				{
-					interactionComponent->Interact();
-
-					if (!Lantern)
+					hitActors.Add(actor);
+					UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
+					if (interactionComponent)
 					{
-						if (ALantern* foundLantern = Cast<ALantern>(actor))
+						interactionComponent->Interact();
+
+						if (!Lantern)
 						{
-							Lantern = foundLantern;
-							SetUpLantern(Lantern);
+							if (ALantern* foundLantern = Cast<ALantern>(actor))
+							{
+								Lantern = foundLantern;
+								SetUpLantern(Lantern);
+							}
 						}
 					}
 				}
@@ -226,7 +250,10 @@ void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
 {
 	if (PanicManagerComponent && PanicManagerComponent->bIsMassPanicReductionEnabled)
 	{
-		PanicManagerComponent->DecreasePanic(BreathPanicReduction);
+		if (PanicManagerComponent->DecreasePanic(BreathPanicReduction))
+		{
+			OnPanicTierChanged();
+		}
 	}
 }
 
@@ -242,6 +269,21 @@ void ALHCharacter::InputDebugAction(const FInputActionValue& InputActionValue)
 	if (Lantern)
 	{
 		Lantern->bDebugModeOn = bDebugModeOn;
+	}
+}
+
+void ALHCharacter::InputPauseAction(const FInputActionValue& InputActionValue)
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	if (APlayerController* PController = Cast<APlayerController>(Controller))
+	{
+		PController->SetShowMouseCursor(true);
+		PController->SetInputMode(FInputModeUIOnly());
+	}
+
+	if (UUserWidget* PauseMenuPtr = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidget))
+	{
+		PauseMenuPtr->AddToViewport();
 	}
 }
 
@@ -286,4 +328,24 @@ bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
 	);
 
 	return bHit;
+}
+
+void ALHCharacter::OnPanicTierChanged()
+{
+	if (!IsValid(PostProcessVolume))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "No valid post process volume in LHCharacter::OnPanicTierChanged!");
+		return;
+	}
+
+	const int CurrentPanicTier = PanicManagerComponent->GetCurrentPanicTier();
+
+	switch (CurrentPanicTier)
+	{
+		case 1: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
+		case 2: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
+		case 3: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierTwo; break;
+		case 4: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierThree; break;
+		case 5: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierFour; break;
+	}
 }

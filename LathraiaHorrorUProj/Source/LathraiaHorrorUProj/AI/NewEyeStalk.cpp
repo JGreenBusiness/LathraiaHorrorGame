@@ -5,11 +5,17 @@
 #include "MathHelpers.h"
 #include "LHCharacter.h"
 #include "PanicManagerComponent.h"
+#include <Kismet/KismetMathLibrary.h>
 
 ANewEyeStalk::ANewEyeStalk()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	USceneComponent* EyeRoot = CreateDefaultSubobject<USceneComponent>("Eye Root");
+	SetRootComponent(EyeRoot);
+
+	EyeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Eye Mesh");
+	EyeMesh->SetupAttachment(EyeRoot);
 }
 
 void ANewEyeStalk::BeginPlay()
@@ -50,6 +56,21 @@ void ANewEyeStalk::Tick(float DeltaTime)
 	{
 		PanicManagerComp->bIsInLineOfSight = bPlayerSeen;
 		bPreviousPlayerSeen = bPlayerSeen;
+	}
+
+	// Rotate to look at player
+	if (bPlayerSeen)
+	{
+		FVector PlayerLocation = PlayerActor->GetActorLocation();
+		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(EyeMesh->GetComponentLocation(), PlayerLocation);
+
+		EyeMesh->SetWorldRotation(LookAtRotation);
+	}
+	// Lerp back to original rotation
+	else
+	{
+		FRotator NewEyeRotation = UKismetMathLibrary::RInterpTo(EyeMesh->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 5.f);
+		EyeMesh->SetRelativeRotation(NewEyeRotation);
 	}
 }
 

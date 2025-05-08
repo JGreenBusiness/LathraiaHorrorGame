@@ -65,5 +65,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
 	TEnumAsByte<EEyeStalkType> Type;
 
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* EyeMesh = nullptr;
+
 	bool bPreviousPlayerSeen = false;
 };

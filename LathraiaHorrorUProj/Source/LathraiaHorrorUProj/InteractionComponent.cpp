@@ -20,7 +20,7 @@ void UInteractionComponent::BeginPlay()
 	InteractionCollider = GetOwner()->GetComponentByClass<UShapeComponent>();
 	if (!IsValid(InteractionCollider))
 	{
-		UE_LOG(LogTemp, Error, TEXT("UInteractionComponent: No interaction Collider found on object \"%s\""),*GetOwner()->GetFName().ToString());
+		UE_LOG(LogTemp, Error, TEXT("UInteractionComponent: No interaction Collider found on object \"%s\". Object must have collision collider"),*GetOwner()->GetFName().ToString());
 	}
 }
 
