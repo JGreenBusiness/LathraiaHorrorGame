@@ -278,7 +278,7 @@ void ALHCharacter::InputPauseAction(const FInputActionValue& InputActionValue)
 	if (APlayerController* PController = Cast<APlayerController>(Controller))
 	{
 		PController->SetShowMouseCursor(true);
-		PController->SetInputMode(FInputModeUIOnly());
+		PController->SetInputMode(FInputModeGameAndUI());
 	}
 
 	if (UUserWidget* PauseMenuPtr = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidget))
