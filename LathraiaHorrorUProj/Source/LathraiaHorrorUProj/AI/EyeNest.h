@@ -25,7 +25,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* RootMesh = nullptr;
+	UStaticMeshComponent* EyeMesh = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* EyeStalkLocation = nullptr;

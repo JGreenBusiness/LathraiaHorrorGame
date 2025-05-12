@@ -7,8 +7,11 @@
 
 AEyeNest::AEyeNest()
 {
-    RootMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
-    SetRootComponent(RootMesh);
+    USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>("Root Component");
+    SetRootComponent(RootComp);
+
+    EyeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
+    EyeMesh->SetupAttachment(RootComponent);
 
     EyeStalkLocation = CreateDefaultSubobject<USceneComponent>("Eye Stalk Location");
     EyeStalkLocation->SetupAttachment(RootComponent);
