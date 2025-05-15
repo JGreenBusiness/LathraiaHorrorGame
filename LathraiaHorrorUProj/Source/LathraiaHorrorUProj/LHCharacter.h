@@ -49,7 +49,6 @@ protected:
 	void RestartLevel();
 
 private:
-	float DefaultMaxWalkSpeed;
 
 protected:
 	
@@ -116,6 +115,9 @@ public:
 
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0f;
+
+	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
+	float DefaultMaxWalkSpeed = 300.0f;
 
 	// Lantern Related Properties
 

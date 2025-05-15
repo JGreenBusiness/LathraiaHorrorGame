@@ -29,7 +29,6 @@ ALHCharacter::ALHCharacter()
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	CharacterMovementComponent = GetCharacterMovement();
-	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
 
 	PanicManagerComponent = CreateDefaultSubobject<UPanicManagerComponent>(TEXT("PanicManager"));
 }
@@ -123,6 +122,7 @@ void ALHCharacter::Tick(float DeltaTime)
 	if (bDebugModeOn && GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicManagerComponent->GetPanicMeter()));
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed = %f"), CharacterMovementComponent->MaxWalkSpeed));
 	}
 
 }
