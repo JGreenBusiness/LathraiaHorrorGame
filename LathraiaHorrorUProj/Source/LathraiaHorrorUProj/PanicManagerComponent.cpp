@@ -109,6 +109,11 @@ void UPanicManagerComponent::UpdateCurrentPanicTier()
 		}
 	}
 
+	if (CurrentPanicTier < PanicReductionTier)
+	{
+		bIsMassPanicReductionEnabled = false;
+	}
+
 }
 
 void UPanicManagerComponent::UpdateMassPanicReductionFlag()
