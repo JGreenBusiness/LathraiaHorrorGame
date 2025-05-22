@@ -168,7 +168,7 @@ void ALantern::AttatchLanternToActiveSocket()
 {
 	if (MeshWithLanternSockets)
 	{
-		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetActiveLanternSocket()->SocketName);
+		AttachToComponent(MeshWithLanternSockets, FAttachmentTransformRules::KeepWorldTransform, GetActiveLanternSocket()->SocketName);
 	}
 	else
 	{
