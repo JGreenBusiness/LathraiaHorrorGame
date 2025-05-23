@@ -6,6 +6,7 @@
 #include "LHCharacter.h"
 #include "PanicManagerComponent.h"
 #include <Kismet/KismetMathLibrary.h>
+#include "SoundManagerSingleton.h"
 
 ANewEyeStalk::ANewEyeStalk()
 {
@@ -24,6 +25,12 @@ void ANewEyeStalk::BeginPlay()
 
 	PlayerActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	PanicManagerComp = Cast<ALHCharacter>(PlayerActor)->GetPanicManagerComponent();
+
+	// Play spawn sound
+	if (USoundManagerSingleton* SoundManager = GetWorld()->GetSubsystem<USoundManagerSingleton>())
+	{
+		SoundManager->PlaySoundAtLocation(Sound_Spawn, GetActorLocation());
+	}
 }
 
 void ANewEyeStalk::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -34,6 +41,12 @@ void ANewEyeStalk::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (bPreviousPlayerSeen)
 	{
 		PanicManagerComp->bIsInLineOfSight = false;
+	}
+
+	// Play de-spawn sound
+	if (USoundManagerSingleton* SoundManager = GetWorld()->GetSubsystem<USoundManagerSingleton>())
+	{
+		SoundManager->PlaySoundAtLocation(Sound_Despawn, GetActorLocation());
 	}
 }
 
@@ -56,6 +69,12 @@ void ANewEyeStalk::Tick(float DeltaTime)
 	{
 		PanicManagerComp->bIsInLineOfSight = bPlayerSeen;
 		bPreviousPlayerSeen = bPlayerSeen;
+
+		// Play correct sound when player seen state changes
+		if (USoundManagerSingleton* SoundManager = GetWorld()->GetSubsystem<USoundManagerSingleton>())
+		{
+			SoundManager->PlaySoundAtLocation(bPlayerSeen ? Sound_PlayerSeen : Sound_PlayerLost, GetActorLocation());
+		}
 	}
 
 	// Rotate to look at player
@@ -69,8 +88,29 @@ void ANewEyeStalk::Tick(float DeltaTime)
 	// Lerp back to original rotation
 	else
 	{
-		FRotator NewEyeRotation = UKismetMathLibrary::RInterpTo(EyeMesh->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 5.f);
-		EyeMesh->SetRelativeRotation(NewEyeRotation);
+		// Random rotation value
+		if (bLerping)
+		{
+			FRotator RandomRotation = FRotator(0, RandomAngle, 0);
+			FRotator NewEyeRotation = UKismetMathLibrary::RInterpTo(EyeMesh->GetRelativeRotation(), RandomRotation, DeltaTime, LerpSpeed);
+			EyeMesh->SetRelativeRotation(NewEyeRotation);
+
+			if (NewEyeRotation.Equals(RandomRotation, 2.f))
+			{
+				bLerping = false;
+			}
+		}
+		else
+		{
+			RandomAngle = FMath::RandRange(-RandomHalfAngleRange, RandomHalfAngleRange);
+			bLerping = true;
+
+			// Play idle sound
+			if (USoundManagerSingleton* SoundManager = GetWorld()->GetSubsystem<USoundManagerSingleton>())
+			{
+				SoundManager->PlaySoundAtLocation(Sound_Idle, GetActorLocation());
+			}
+		}
 	}
 }
 
