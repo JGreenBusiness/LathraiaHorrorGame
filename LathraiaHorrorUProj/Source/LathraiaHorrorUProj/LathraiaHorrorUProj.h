@@ -8,6 +8,7 @@ class FYourGameModule : public IModuleInterface
 {
 public:
     virtual void StartupModule() override;
+    virtual bool IsGameModule() const override { return true; }
 
 private:
     void SetConfigKeyValue(FString ConfigFileName, FString Section, FString Key, FString KeyValue);
