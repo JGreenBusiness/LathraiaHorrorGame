@@ -22,6 +22,12 @@ void USoundManagerSingleton::PlaySoundAtLocation(FString SoundName, FVector Loca
         return;
     }
 
+    if (SoundName == "")
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "Sound name is empty!");
+        return;
+    }
+
     USoundCue* SoundPtr = ManagerInst->SoundMap[SoundName];
     if (SoundPtr == nullptr)
     {

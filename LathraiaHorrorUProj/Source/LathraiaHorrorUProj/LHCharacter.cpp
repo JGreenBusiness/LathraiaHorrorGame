@@ -287,6 +287,14 @@ void ALHCharacter::InputPauseAction(const FInputActionValue& InputActionValue)
 	}
 }
 
+void ALHCharacter::SetVignetteOverride(bool bOverriden)
+{
+	bVignetteOverriden = bOverriden;
+
+	// Since vignette is already modified in here, we re-use it
+	OnPanicTierChanged();
+}
+
 void ALHCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
@@ -335,6 +343,12 @@ void ALHCharacter::OnPanicTierChanged()
 	if (!IsValid(PostProcessVolume))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "No valid post process volume in LHCharacter::OnPanicTierChanged!");
+		return;
+	}
+
+	if (bVignetteOverriden)
+	{
+		PostProcessVolume->Settings.VignetteIntensity = Vignette_Override;
 		return;
 	}
 

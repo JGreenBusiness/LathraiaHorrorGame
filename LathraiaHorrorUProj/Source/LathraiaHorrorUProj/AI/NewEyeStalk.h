@@ -77,19 +77,19 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* EyeMesh = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
 	FString Sound_Spawn = "";
 
-	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
 	FString Sound_Despawn = "";
 
-	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
 	FString Sound_PlayerSeen = "";
 
-	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
 	FString Sound_PlayerLost = "";
 
-	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
 	FString Sound_Idle = "";
 
 	bool bPreviousPlayerSeen = false;

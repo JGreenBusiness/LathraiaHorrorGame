@@ -75,6 +75,11 @@ void ANewEyeStalk::Tick(float DeltaTime)
 		{
 			SoundManager->PlaySoundAtLocation(bPlayerSeen ? Sound_PlayerSeen : Sound_PlayerLost, GetActorLocation());
 		}
+
+		if (ALHCharacter* Character = Cast<ALHCharacter>(PlayerActor))
+		{
+			Character->SetVignetteOverride(bPlayerSeen);
+		}
 	}
 
 	// Rotate to look at player

@@ -113,6 +113,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
 	float Vignette_TierFour = 1.0f;
 
+	UPROPERTY(EditAnywhere, Category = "LHCharacter Config: Panic")
+	float Vignette_Override = 1.5f;
+
+	UPROPERTY(VisibleAnywhere, Category = "LHCharacter Config: Panic")
+	bool bVignetteOverriden = false;
+
 	UPROPERTY(Category = "LHCharacter Config", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s"))
 	float SprintSpeed = 600.0f;
 
@@ -208,5 +214,8 @@ public:
 	void InputDebugAction(const FInputActionValue& InputActionValue);
 
 	void InputPauseAction(const FInputActionValue& InputActionValue);
+
+	// Vignette override
+	void SetVignetteOverride(bool bOverridden);
 
 };
