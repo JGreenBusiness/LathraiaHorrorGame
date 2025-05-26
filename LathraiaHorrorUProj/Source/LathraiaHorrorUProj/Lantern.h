@@ -16,7 +16,8 @@ enum class ELanternState : uint8
 {
 	ELS_InUse,
 	ELS_Stowed,
-	ELS_Rekindling
+	ELS_Rekindling,
+	ELS_ReLighting
 };
 
 
@@ -35,6 +36,7 @@ protected:
 	void ChangeLanternState(ELanternState NewLanternState);
 
 	float LerpFlameIntensity(float DeltaTime);
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
@@ -48,6 +50,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
 	float RekindlingDelay = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float RelightLanternDelay = 1.0f;
 
 	///Debugging Variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
@@ -92,7 +97,7 @@ public:
 	ELanternState GetActiveLanternState() { return CurrentLanternState; }
 
 	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
-	const USkeletalMeshSocket* GetActiveLanternSocket() { return *LanternSockets.Find(CurrentLanternState); }
+	const USkeletalMeshSocket* GetActiveLanternSocket();
 
 	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
 	USkeletalMeshComponent* GetMeshWithLanternSockets();

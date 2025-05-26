@@ -310,6 +310,7 @@ void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
 	LanternToSetUp->InitializeLantern(GetMesh(),PanicManagerComponent);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, HeldLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_ReLighting, StowedLanternSocketName);
 	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
 	LanternToSetUp->SetLanternState(ELanternState::ELS_Rekindling);
 }
