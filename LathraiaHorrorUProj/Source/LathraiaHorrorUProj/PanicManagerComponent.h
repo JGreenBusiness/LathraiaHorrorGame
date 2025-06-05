@@ -26,10 +26,10 @@ struct FPanicTierData
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Panic")
-	EPanicTier Tier;
+	EPanicTier Tier = EPanicTier::EPT_Tier_0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Panic")
-	float Threshold;
+	float Threshold = 0.0f;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
