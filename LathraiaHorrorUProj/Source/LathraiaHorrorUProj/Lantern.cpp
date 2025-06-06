@@ -52,8 +52,16 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 	FTimerHandle RekindleDelayTimer;
 	FTimerDelegate RekindleTimerDelegate;
 
+	FTimerDelegate RelightTimerDelegate;
+	FTimerHandle RelightDelayTimer;
+
 	switch (CurrentLanternState)
 	{
+	case ELanternState::ELS_ReLighting:
+		RelightTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_Stowed);
+		GetWorld()->GetTimerManager().SetTimer(RelightDelayTimer, RelightTimerDelegate, RelightLanternDelay, false);
+		PanicManagerComponent->SetPanicking(true);
+		break;
 	case ELanternState::ELS_Rekindling:
 		RekindleTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_InUse);
 		GetWorld()->GetTimerManager().SetTimer(RekindleDelayTimer, RekindleTimerDelegate, RekindlingDelay, false);
@@ -75,9 +83,18 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 
 float ALantern::LerpFlameIntensity(float DeltaTime)
 {
+
+
 	switch (CurrentLanternState)
 	{
 	case ELanternState::ELS_InUse:
+
+		if (CurrentFlameIntensity <= 0)
+		{
+			ChangeLanternState(ELanternState::ELS_ReLighting);
+			return CurrentFlameIntensity;
+		}
+
 		return CurrentFlameIntensity = FMath::FInterpConstantTo(CurrentFlameIntensity, 0, DeltaTime, BurnRate);
 		break;
 	case ELanternState::ELS_Stowed:
@@ -87,10 +104,15 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 	case ELanternState::ELS_Rekindling:
 		return CurrentFlameIntensity * StowedDimedRatio;
 		break;
+	case ELanternState::ELS_ReLighting:
+		return CurrentFlameIntensity;
+		break;
 	default:
 		return 0;
 		break;
 	}
+
+
 }
 
 void ALantern::OnInteraction()
@@ -132,6 +154,9 @@ void ALantern::Tick(float DeltaTime)
 		case ELanternState::ELS_Rekindling:
 			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling")));
 			break;
+		case ELanternState::ELS_ReLighting:
+			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Relighting")));
+			break;
 		default:
 			break;
 		}
@@ -149,6 +174,20 @@ void ALantern::SetLanternState(ELanternState NewLanternState)
 		}
 	}
 	
+}
+
+const USkeletalMeshSocket* ALantern::GetActiveLanternSocket()
+{
+	const USkeletalMeshSocket* ActiveLanternSocket = *LanternSockets.Find(CurrentLanternState);
+	if (IsValid(ActiveLanternSocket))
+	{
+		return ActiveLanternSocket;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Lantern.cpp: Could not GetActiveLanternSocket. Maybe Socket was not added "));
+		return ActiveLanternSocket = *LanternSockets.Find(ELanternState::ELS_Stowed);
+	}
 }
 
 USkeletalMeshComponent* ALantern::GetMeshWithLanternSockets()
@@ -178,8 +217,16 @@ void ALantern::AttatchLanternToActiveSocket()
 
 void ALantern::ToggleLanternHeldState()
 {
-	CurrentLanternState == ELanternState::ELS_InUse?
-		SetLanternState(ELanternState::ELS_Stowed):
+	switch (CurrentLanternState)
+	{
+	case ELanternState::ELS_InUse:
+		SetLanternState(ELanternState::ELS_Stowed);
+		break;
+	case ELanternState::ELS_Stowed:
 		SetLanternState(ELanternState::ELS_Rekindling);
+		break;
+	default:
+		break;
+	}
 }
 

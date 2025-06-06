@@ -62,11 +62,35 @@ private:
 	UPROPERTY(EditAnywhere, Category = "New Eye Stalk", meta = (ClampMin = 1)) // In cm
 		float ViewCone_Length = 1000.f;
 
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	float RandomHalfAngleRange = 50.f;
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	float LerpSpeed = 0.5f;
+
+	bool bLerping = false;
+	float RandomAngle = 0.f;
+
 	UPROPERTY(VisibleAnywhere, Category = "New Eye Stalk")
 	TEnumAsByte<EEyeStalkType> Type;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* EyeMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	FString Sound_Spawn = "";
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	FString Sound_Despawn = "";
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	FString Sound_PlayerSeen = "";
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	FString Sound_PlayerLost = "";
+
+	UPROPERTY(EditAnywhere, Category = "New Eye Stalk")
+	FString Sound_Idle = "";
 
 	bool bPreviousPlayerSeen = false;
 };
