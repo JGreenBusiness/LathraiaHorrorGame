@@ -1,0 +1,12 @@
+ai pass 2
+
+per eye nest view cone values
+- angle
+- distance
+
+visualizer breaks when deleting it :(
+
+subscribe to tier delegates
+- 2->3 => spawn docile eye stalk
+- 3->4 => de-spawn docile eye stalk, and spawn swift eye stalks
+- 3->2 => de-spawn all eye stalks

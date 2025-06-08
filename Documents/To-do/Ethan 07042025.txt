@@ -1,0 +1,11 @@
+- Copy Yash greybox
+- Implement EyeStalk's
+- Sound Manager
+  - Singleton
+  - Map [names => sounds]
+  - Examples
+    - Walking - wood
+    - Candles - crackling
+    - Ambience - ocean waves, creepy creaks, seagulls
+    - Lantern - firefly
+  - Trigger to play a certain sound

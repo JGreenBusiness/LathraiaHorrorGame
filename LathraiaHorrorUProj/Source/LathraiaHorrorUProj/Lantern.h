@@ -7,28 +7,17 @@
 #include "Lantern.generated.h"
 
 class USkeletalMeshSocket;
-class ALHCharacter;
 class UPointLightComponent;
+class UInteractionComponent;
+class UPanicManagerComponent;
 
 UENUM()
 enum class ELanternState : uint8
 {
-	ELS_Held,
+	ELS_InUse,
 	ELS_Stowed,
-	ELS_RekindleReady,
-	ELS_InUse
-};
-
-
-UENUM()
-enum class EFireIntensityTeir : uint8
-{
-	EFT_Snuffed,
-	EFT_TeirOne,
-	EFT_TeirTwo,
-	EFT_TeirThree,
-	EFT_TeirFour,
-	EFT_TeirFive,
+	ELS_Rekindling,
+	ELS_ReLighting
 };
 
 
@@ -43,54 +32,44 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
 	void ChangeLanternState(ELanternState NewLanternState);
 
-	float GetFireIntensityTeirRatio(EFireIntensityTeir FireIntensityTeir) { return static_cast<float>(static_cast<uint8>(FireIntensityTeir)) / static_cast<float>(static_cast<uint8>(EFireIntensityTeir::EFT_TeirFive));}
-
 	float LerpFlameIntensity(float DeltaTime);
+
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config")
-	bool bSpawnOnPlayer = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float StowedDimedRatio = .3;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float HeldBurnRate = .1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0",UIMin = "0.0"))
+	float HeldBurnRate = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float StowedBurnRate = .01f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float RekindlingBurnRate = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float InUseBurnRate = .5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float RekindlingDelay = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float RekindlingBurnRate = .5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float RelightLanternDelay = 1.0f;
 
-
-	// Socket Logic
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	ELanternState DefaultLanternSocket = ELanternState::ELS_Held;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName HeldLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName InUseLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName StowedLanternSocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Lantern Sockets")
-	FName RekindleLanternSocketName;
+	///Debugging Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")
+	bool bDebugModeOn = false;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UInteractionComponent* InteractionComponent;
+
+	UPanicManagerComponent* PanicManagerComponent;
+
+	UFUNCTION()
+	void OnInteraction();
+
 	TMap<ELanternState, const USkeletalMeshSocket*> LanternSockets;
-
-	ALHCharacter* Player;
-
-	ELanternState CurrentLanternState;
-	EFireIntensityTeir FireIntensityTeirDestination = EFireIntensityTeir::EFT_Snuffed;
+	USkeletalMeshComponent* MeshWithLanternSockets;
+	ELanternState CurrentLanternState = ELanternState::ELS_Stowed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UPointLightComponent* PointLightComponent;
@@ -106,13 +85,29 @@ protected:
 	float CurrentFlameIntensity;
 
 public:	
+	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh, UPanicManagerComponent* PanicManager);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void SetLanternState(ELanternState NewLanternState);
 
-	ELanternState GetActiveSocketState() { return CurrentLanternState; }
+	float GetFlameIntensityPercent() { return (CurrentFlameIntensity / MaxLanternIntensity); }
+
+	ELanternState GetActiveLanternState() { return CurrentLanternState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	const USkeletalMeshSocket* GetActiveLanternSocket();
+
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	USkeletalMeshComponent* GetMeshWithLanternSockets();
+	UFUNCTION(BlueprintCallable, Category = "Lantern Config: Lantern Sockets")
+	void AttatchLanternToActiveSocket();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Lantern Config: Lantern")
+	void OnLanternNewLanternState(); // Lantern positional lerping occurs in BP_Lantern Event Graph
 
 	void ToggleLanternHeldState();
 
+	void AddLanternSocket(ELanternState LanternState, FName LanternSocketName); // Lantern Sockets are added in ALHCharacter::SetUpLantern
 };

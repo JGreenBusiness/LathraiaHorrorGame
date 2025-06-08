@@ -1,0 +1,18 @@
+eyestalk spawn logic
+- docile
+  - similar to previous spawn logic
+  - spawn at closest nest to player (determined nest)
+  - find next 2 nests + previous 1 nest
+  - found nests are the 'range' of the docile eye stalk
+  - when player moves, move the eyestalk to the closest nest in 'range'
+    - small radius
+- swift
+  - spawn eyestalks at every nest within a radius around player
+  - this eyestalk does not switch their nest
+  - make the player hate their surroundings :)
+
+!! eyestalk spawn locations are linear (list or TArray) !!
+
+tier3 spawns eyestalk in 'docile' state
+tier4 de-spawns 'docile' eyestalk and spawns a bunch of 'swift' eyestalks
+tier3->tier2 de-spawn 'docile' eyestalk

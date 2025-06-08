@@ -3,12 +3,19 @@
 
 #include "LHCharacter.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInput/Public/InputAction.h"
 #include <EnhancedInputComponent.h>
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Lantern.h"
+#include "Kismet/GameplayStatics.h"
+#include "InteractionComponent.h"
+#include "PanicManagerComponent.h"
+#include "Sound/SoundCue.h"
+#include "Engine/PostProcessVolume.h"
+#include "Blueprint/UserWidget.h"
 
 ALHCharacter::ALHCharacter()
 {
@@ -21,21 +28,41 @@ ALHCharacter::ALHCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	
-
-	Mesh1P = Cast<USkeletalMeshComponent>(GetDefaultSubobjectByName(TEXT("CHaracterMesh0")));
-	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
-	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
-
 	CharacterMovementComponent = GetCharacterMovement();
-	DefaultMaxWalkSpeed = CharacterMovementComponent->MaxWalkSpeed;
+
+	PanicManagerComponent = CreateDefaultSubobject<UPanicManagerComponent>(TEXT("PanicManager"));
 }
 
 void ALHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (bStartWithLantern && LanternClass)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// Spawn the Blueprint actor
+			FActorSpawnParameters SpawnParams;
+			Lantern = World->SpawnActor<ALantern>(LanternClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+			SetUpLantern(Lantern);
+		}
+	}
+
+	// Setup panic states to adjust vignette post process
+	PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), APostProcessVolume::StaticClass()));
+	if (PostProcessVolume)
+	{
+		PostProcessVolume->Settings.bOverride_VignetteIntensity = true;
+	}
+
+	if (PanicManagerComponent)
+	{
+		PanicManagerComponent->OnPanicTierTwo.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierThree.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFour.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+		PanicManagerComponent->OnPanicTierFive.AddDynamic(this, &ALHCharacter::OnPanicTierChanged);
+	}
 }
 
 void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -58,18 +85,79 @@ void ALHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputInteract);
 
+		Input->BindAction(BreatheInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputBreathe);
+
 		Input->BindAction(PrimaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPrimaryAction);
 
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputSecondaryAction);
-		Input->BindAction(SecondaryInputAction, ETriggerEvent::Completed, this, &ALHCharacter::ToggleHeldLantern);
+		Input->BindAction(DebugInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputDebugAction);
 
-		Input->BindAction(TertiaryInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputTertieryAction);
+		Input->BindAction(PauseInputAction, ETriggerEvent::Triggered, this, &ALHCharacter::InputPauseAction);
 	}
+}
+
+void ALHCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (PanicManagerComponent)
+	{
+		PanicManagerComponent->OnMaxPanicTier.AddDynamic(this, &ALHCharacter::RestartLevel);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LHCharacter.cpp: Panic Manager Component is nullptr"));
+	}
+}
+
+void ALHCharacter::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Restarting Level"));
+}
+
+void ALHCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bDebugModeOn && GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Panic = %f%%"), PanicManagerComponent->GetPanicMeter()));
+		GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed = %f"), CharacterMovementComponent->MaxWalkSpeed));
+	}
+
 }
 
 void ALHCharacter::OnInteractAction()
 {
-	OnInteract.Broadcast();
+	TArray<FHitResult> hitResults;
+	if (PerformSphereTrace(hitResults))
+	{
+		TArray<AActor*> hitActors;
+		for (auto& hit : hitResults)
+		{
+			if (AActor* actor = hit.GetActor())
+			{
+				if (!hitActors.Contains(actor))
+				{
+					hitActors.Add(actor);
+					UInteractionComponent* interactionComponent = actor->FindComponentByClass<UInteractionComponent>();
+					if (interactionComponent)
+					{
+						interactionComponent->Interact();
+
+						if (!Lantern)
+						{
+							if (ALantern* foundLantern = Cast<ALantern>(actor))
+							{
+								Lantern = foundLantern;
+								SetUpLantern(Lantern);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void ALHCharacter::ToggleHeldLantern()
@@ -78,18 +166,15 @@ void ALHCharacter::ToggleHeldLantern()
 	{
 		Lantern->ToggleLanternHeldState();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("LHCharacter.cpp: Lantern not Set"))
-	}
 }
 
-void ALHCharacter::PlaceLanternDown()
+float ALHCharacter::GetLanternFlameIntensity()
 {
-	if (Lantern && Lantern->GetActiveSocketState() != ELanternState::ELS_RekindleReady)
+	if (Lantern)
 	{
-		Lantern->SetLanternState(ELanternState::ELS_RekindleReady);
+		return Lantern->GetFlameIntensityPercent();
 	}
+	return 0;
 }
 
 void ALHCharacter::InputMove(const FInputActionValue& InputActionValue)
@@ -161,27 +246,54 @@ void ALHCharacter::InputInteract(const FInputActionValue& InputActionValue)
 	OnInteractAction();
 }
 
+void ALHCharacter::InputBreathe(const FInputActionValue& InputActionValue)
+{
+	if (PanicManagerComponent && PanicManagerComponent->bIsMassPanicReductionEnabled)
+	{
+		if (PanicManagerComponent->DecreasePanic(BreathPanicReduction))
+		{
+			OnPanicTierChanged();
+		}
+	}
+}
+
 void ALHCharacter::InputPrimaryAction(const FInputActionValue& InputActionValue)
 {
 	ToggleHeldLantern();
 }
 
-void ALHCharacter::InputSecondaryAction(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputDebugAction(const FInputActionValue& InputActionValue)
 {
+	bDebugModeOn ? bDebugModeOn = false : bDebugModeOn = true;
+
 	if (Lantern)
 	{
-		Lantern->SetLanternState(ELanternState::ELS_InUse);
+		Lantern->bDebugModeOn = bDebugModeOn;
 	}
 }
 
-void ALHCharacter::InputTertieryAction(const FInputActionValue& InputActionValue)
+void ALHCharacter::InputPauseAction(const FInputActionValue& InputActionValue)
 {
-	if (Lantern)
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	if (APlayerController* PController = Cast<APlayerController>(Controller))
 	{
-		PlaceLanternDown();
+		PController->SetShowMouseCursor(true);
+		PController->SetInputMode(FInputModeGameAndUI());
+	}
+
+	if (UUserWidget* PauseMenuPtr = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidget))
+	{
+		PauseMenuPtr->AddToViewport();
 	}
 }
 
+void ALHCharacter::SetVignetteOverride(bool bOverriden)
+{
+	bVignetteOverriden = bOverriden;
+
+	// Since vignette is already modified in here, we re-use it
+	OnPanicTierChanged();
+}
 
 void ALHCharacter::TurnAtRate(float Rate)
 {
@@ -193,3 +305,62 @@ void ALHCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
+void ALHCharacter::SetUpLantern(ALantern* LanternToSetUp)
+{
+	LanternToSetUp->InitializeLantern(GetMesh(),PanicManagerComponent);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_InUse, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Rekindling, HeldLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_ReLighting, StowedLanternSocketName);
+	LanternToSetUp->AddLanternSocket(ELanternState::ELS_Stowed, StowedLanternSocketName);
+	LanternToSetUp->SetLanternState(ELanternState::ELS_Rekindling);
+}
+
+bool ALHCharacter::PerformSphereTrace(TArray<FHitResult>& OutHits)
+{
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	Controller->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+	FVector startLocation = CameraLocation;
+	FVector endLocation = CameraLocation + (CameraRotation.Vector() * InteractionRadius);
+
+
+	FCollisionQueryParams CollisionParams;
+	bool bHit = GetWorld()->SweepMultiByChannel(
+		OutHits,
+		startLocation,
+		endLocation,
+		FQuat::Identity,
+		ECC_Visibility,
+		FCollisionShape::MakeSphere(50.0f),
+		CollisionParams
+	);
+
+	return bHit;
+}
+
+void ALHCharacter::OnPanicTierChanged()
+{
+	if (!IsValid(PostProcessVolume))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, "No valid post process volume in LHCharacter::OnPanicTierChanged!");
+		return;
+	}
+
+	if (bVignetteOverriden)
+	{
+		PostProcessVolume->Settings.VignetteIntensity = Vignette_Override;
+		return;
+	}
+
+	const int CurrentPanicTier = PanicManagerComponent->GetCurrentPanicTier();
+
+	switch (CurrentPanicTier)
+	{
+		case 1: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
+		case 2: PostProcessVolume->Settings.VignetteIntensity = Vignette_Default; break;
+		case 3: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierTwo; break;
+		case 4: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierThree; break;
+		case 5: PostProcessVolume->Settings.VignetteIntensity = Vignette_TierFour; break;
+	}
+}
