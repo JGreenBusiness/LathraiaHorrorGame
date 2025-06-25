@@ -17,7 +17,7 @@ enum class ELanternState : uint8
 	ELS_InUse,
 	ELS_Stowed,
 	ELS_Rekindling,
-	ELS_ReLighting
+	ELS_Refuel
 };
 
 
@@ -52,7 +52,7 @@ public:
 	float RekindlingDelay = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lantern Config: Burn Rates", meta = (ClampMin = "0.0", UIMin = "0.0"))
-	float RelightLanternDelay = 1.0f;
+	float RefuelLanternDelay = 1.0f;
 
 	///Debugging Variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lantern Config")

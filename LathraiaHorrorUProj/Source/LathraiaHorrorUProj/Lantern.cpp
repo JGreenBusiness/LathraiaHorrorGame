@@ -52,19 +52,20 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 	FTimerHandle RekindleDelayTimer;
 	FTimerDelegate RekindleTimerDelegate;
 
-	FTimerDelegate RelightTimerDelegate;
-	FTimerHandle RelightDelayTimer;
+	FTimerDelegate RefuelTimerDelegate;
+	FTimerHandle RefuelDelayTimer;
 
 	switch (CurrentLanternState)
 	{
-	case ELanternState::ELS_ReLighting:
-		RelightTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_Stowed);
-		GetWorld()->GetTimerManager().SetTimer(RelightDelayTimer, RelightTimerDelegate, RelightLanternDelay, false);
+	case ELanternState::ELS_Refuel:
+		RefuelTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_Stowed);
+		GetWorld()->GetTimerManager().SetTimer(RefuelDelayTimer, RefuelTimerDelegate, RefuelLanternDelay, false);
 		PanicManagerComponent->SetPanicking(true);
 		break;
 	case ELanternState::ELS_Rekindling:
 		RekindleTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_InUse);
 		GetWorld()->GetTimerManager().SetTimer(RekindleDelayTimer, RekindleTimerDelegate, RekindlingDelay, false);
+
 		break;
 	case ELanternState::ELS_InUse:
 		BurnRate = HeldBurnRate;
@@ -91,7 +92,7 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 
 		if (CurrentFlameIntensity <= 0)
 		{
-			ChangeLanternState(ELanternState::ELS_ReLighting);
+			ChangeLanternState(ELanternState::ELS_Refuel);
 			return CurrentFlameIntensity;
 		}
 
@@ -104,7 +105,7 @@ float ALantern::LerpFlameIntensity(float DeltaTime)
 	case ELanternState::ELS_Rekindling:
 		return CurrentFlameIntensity * StowedDimedRatio;
 		break;
-	case ELanternState::ELS_ReLighting:
+	case ELanternState::ELS_Refuel:
 		return CurrentFlameIntensity;
 		break;
 	default:
@@ -154,7 +155,7 @@ void ALantern::Tick(float DeltaTime)
 		case ELanternState::ELS_Rekindling:
 			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Rekindling")));
 			break;
-		case ELanternState::ELS_ReLighting:
+		case ELanternState::ELS_Refuel:
 			GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Green, FString::Printf(TEXT("Current Lantern State: Relighting")));
 			break;
 		default:
