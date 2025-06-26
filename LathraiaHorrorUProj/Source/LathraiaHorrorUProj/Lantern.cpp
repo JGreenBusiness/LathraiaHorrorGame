@@ -49,7 +49,6 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 {
 	CurrentLanternState = NewLanternState;
 
-	FTimerHandle RekindleDelayTimer;
 	FTimerDelegate RekindleTimerDelegate;
 
 	FTimerDelegate RefuelTimerDelegate;
@@ -65,13 +64,16 @@ void ALantern::ChangeLanternState(ELanternState NewLanternState)
 	case ELanternState::ELS_Rekindling:
 		RekindleTimerDelegate.BindUFunction(this, "ChangeLanternState", (ELanternState)ELanternState::ELS_InUse);
 		GetWorld()->GetTimerManager().SetTimer(RekindleDelayTimer, RekindleTimerDelegate, RekindlingDelay, false);
-
 		break;
 	case ELanternState::ELS_InUse:
 		BurnRate = HeldBurnRate;
 		PanicManagerComponent->SetPanicking(false);
 		break;
 	case ELanternState::ELS_Stowed:
+		if (GetWorld()->GetTimerManager().IsTimerActive(RekindleDelayTimer))
+		{
+			GetWorld()->GetTimerManager().PauseTimer(RekindleDelayTimer);
+		}
 		BurnRate = RekindlingBurnRate;
 		PanicManagerComponent->SetPanicking(true);
 		break;
@@ -167,6 +169,7 @@ void ALantern::Tick(float DeltaTime)
 
 void ALantern::SetLanternState(ELanternState NewLanternState)
 {
+
 	if (const USkeletalMeshSocket* LanternSocket = *LanternSockets.Find(NewLanternState))
 	{
 		if (MeshWithLanternSockets->DoesSocketExist(LanternSocket->SocketName))
@@ -225,6 +228,9 @@ void ALantern::ToggleLanternHeldState()
 		break;
 	case ELanternState::ELS_Stowed:
 		SetLanternState(ELanternState::ELS_Rekindling);
+		break;
+	case ELanternState::ELS_Rekindling:
+		SetLanternState(ELanternState::ELS_Stowed);
 		break;
 	default:
 		break;

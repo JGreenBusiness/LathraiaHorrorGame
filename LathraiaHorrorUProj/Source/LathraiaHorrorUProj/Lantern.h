@@ -84,6 +84,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float CurrentFlameIntensity;
 
+	FTimerHandle RekindleDelayTimer;
+
 public:	
 	void InitializeLantern(USkeletalMeshComponent* LanternSocketedMesh, UPanicManagerComponent* PanicManager);
 
